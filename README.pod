@@ -24,7 +24,7 @@ This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.ph
 
 
 
-=head1 Methods for Wiktionary::Parser
+=head2 Methods for Wiktionary::Parser
 
 =over
 
@@ -41,7 +41,7 @@ Returns a Wiktionary::Parser::Document object
 
 =back
 
-=head1 Methods for Wiktionary::Parser::Document
+=head2 Methods for Wiktionary::Parser::Document
 
 =over
 
@@ -81,7 +81,7 @@ Return the document title (i.e. the word you used to retrieve the document from 
 
 =back
 
-=head1 Methods for Wiktionary::Parser::Section
+=head2 Methods for Wiktionary::Parser::Section
 
 =over
 
@@ -113,11 +113,11 @@ Return an arrayref containing all sections above this one in the hierarchy.
 
 =back
 
-=head1 Methods for Wiktionary::Parser::Section::Translations
-
-=over
+=head2 Methods for Wiktionary::Parser::Section::Translations
 
 This is a subclass of Wiktionary::Parser::Section
+
+=over
 
 =item B<get_word_senses>
 
@@ -129,7 +129,7 @@ Returns the Wiktionary::Parser::Section::Translation::WordSense object for this 
 
 =back
 
-=head1 Methods for Wiktionary::Parser::Section::Translations::WordSense
+=head2 Methods for Wiktionary::Parser::Section::Translations::WordSense
 
 =over
 
@@ -143,7 +143,7 @@ Returns a hashref mapping language => [Wiktionary::Parser::Section::Translations
 
 =back
 
-=head1 Methods for Wiktionary::Parser::Section::Translations::WordSense::Lexeme
+=head2 Methods for Wiktionary::Parser::Section::Translations::WordSense::Lexeme
 
 =over
 
