@@ -148,11 +148,9 @@ sub get_synonyms {
 		my $synonyms = $section->get_synonyms();
 		for my $synonym (@{$synonyms || []}) {
 
-			
-			push @{$synonyms{ $synonym->{language} }}, {
-				sense => $synonym->{sense}, 
-				synonyms => $synonym->{lexemes},
-			};
+			my $lang = $synonym->{language};
+			my $sense = $synonym->{sense};
+			push @{$synonyms{$lang}{$sense}}, @{$synonym->{lexemes} || []};
 		}
 	}
 

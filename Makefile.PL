@@ -13,9 +13,9 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-	    'XML::Generic' => 0,
-	    'LWP'          => 0,
-	    'JSON::XS'     => 0,
+		'LWP'          => 6.04,
+		'JSON::XS'     => 0,
+		'Carp::Always' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Wiktionary-Parser-*' },

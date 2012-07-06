@@ -1,4 +1,4 @@
-package Wiktionary::Parser::Section::Synonym;
+package Wiktionary::Parser::Section::Hyponym;
 
 use strict;
 use warnings;
@@ -14,7 +14,7 @@ sub new {
 	return $self;
 }
 
-sub get_synonyms {
+sub get_hyponyms {
 	my $self = shift;
 	return $self->{groups};
 }
