@@ -30,14 +30,17 @@ This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.ph
 
 =item B<new>
 
-	Optional Args:
-	my $parser =Wiktionary::Parser->new(
-		wiktionary_url => '...' # optional - url to wiktionary api - defaults to and currently only supports content from en.wiktionary.org
+	# Optional Args:
+	my $parser = Wiktionary::Parser->new(
+		wiktionary_url => '...' # optional - url to wiktionary api 
+						    # defaults to and currently only supports content from en.wiktionary.org
 	);
 
 =item B<get_document> (title => TITLE)
 
 Returns a Wiktionary::Parser::Document object
+
+	my $document = $parser->get_document(title => 'orange');
 
 =back
 
@@ -50,15 +53,39 @@ Returns a Wiktionary::Parser::Document object
 Returns a hashref mapping word sense to language to translated words
 
 
+	my $translations = $document_get_translations();
+	
+	my @word_senses = keys %$translations;
+	
+	for my $word_sense (keys %$translations) {
+		for my $language_code (keys %{ $translations{$word_sense} }) {
+			my @translated_words = @{ $translations{$word_sense}{$language_code}};
+		}
+	}
+
+
+
 =item B<get_word_senses>
 
 Returns an arrayref containing a list of word senses
+
+
+	my $word_senses = $document->get_word_senses();
+	
+	for my $word_sense (@$word_senses) {
+		
+	}
 
 =item B<get_parts_of_speech>
 
 Returns a hashref mapping language to a list of parts of speech
 
-=item B<get_synonyms>
+
+	my $parts_of_speech = $document->get_parts_of_speech();
+	
+	for my $language_code (keys %$parts_of_speech) {
+		my @parts_of_speech = @{ $parts_of_speech->{$language_code} };
+	}
 
 
 =item B<get_sections>
