@@ -1,0 +1,29 @@
+=head1 Name
+
+Wiktionary::Parser - Parse pages from Wiktionary into JSON
+
+=head1 Synopsis
+
+
+=head1 Usage
+
+	my $parser = Wiktionary::Parser->new();
+
+	my $document = $parser->get_document(title => 'bunny');
+
+	$document->get_translations();
+
+	$document->get_word_senses();
+
+	$document->get_parts_of_speech();
+
+	$document->get_sections();
+
+
+=head1 Methods
+
+=item B<get_document> (title => TITLE)
+
+Returns a Wiktionary::Parser::Document object
+
+=cut
