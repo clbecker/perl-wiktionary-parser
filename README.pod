@@ -33,7 +33,7 @@ This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.ph
 	# Optional Args:
 	my $parser = Wiktionary::Parser->new(
 		wiktionary_url => '...' # optional - url to wiktionary api 
-						    # defaults to and currently only supports content from en.wiktionary.org
+		# defaults to and currently only supports content from en.wiktionary.org
 	);
 
 =item B<get_document> (title => TITLE)
