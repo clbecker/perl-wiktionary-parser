@@ -1,29 +1,165 @@
 =head1 Name
 
-Wiktionary::Parser - Parse pages from Wiktionary into JSON
+Wiktionary::Parser - Client and Parser of content from the Wiktionary API
 
 =head1 Synopsis
 
+This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.php) for documents by title.  It parses the resulting MediaWiki document and provides access to data structures containing word senses, translations, synonyms, parts of speech, etc.  It also provides access to the raw content of each MediaWiki section should you wish to extract other data on your own, or build on top of this package.  
 
 =head1 Usage
 
 	my $parser = Wiktionary::Parser->new();
-
+	
 	my $document = $parser->get_document(title => 'bunny');
+	
+	my $translation_hashref = $document->get_translations();
+	
+	my $word_sense_hashref = $document->get_word_senses();
+	
+	my $parts_of_speech_hashref = $document->get_parts_of_speech();
+	
+	my $section_hashref = $document->get_sections();
 
-	$document->get_translations();
-
-	$document->get_word_senses();
-
-	$document->get_parts_of_speech();
-
-	$document->get_sections();
+	my $table_of_contents_arrayref = $document->get_table_of_contents();
 
 
-=head1 Methods
+
+=head1 Methods for Wiktionary::Parser
+
+=over
+
+=item B<new>
+
+	Optional Args:
+	my $parser =Wiktionary::Parser->new(
+		wiktionary_url => '...' # optional - url to wiktionary api - defaults to and currently only supports content from en.wiktionary.org
+	);
 
 =item B<get_document> (title => TITLE)
 
 Returns a Wiktionary::Parser::Document object
+
+=back
+
+=head1 Methods for Wiktionary::Parser::Document
+
+=over
+
+=item B<get_translations>
+
+Returns a hashref mapping word sense to language to translated words
+
+
+=item B<get_word_senses>
+
+Returns an arrayref containing a list of word senses
+
+=item B<get_parts_of_speech>
+
+Returns a hashref mapping language to a list of parts of speech
+
+=item B<get_synonyms>
+
+
+=item B<get_sections>
+
+Returns a hashref of Wiktionary::Parser::Section objects.  These provide access to the data for each section of the document.
+The format of the hash is { $section_number => object }  e.g. {'1.2.1' => $obj}
+
+
+=item B<get_table_of_contents>
+
+Returns an arrayref containing section numbers and section names.  
+
+=item B<get_section(SECTION_NUMBER)>
+
+Given the section number, returns the corresponding Wiktionary::Parser::Section object
+
+=item B<get_title>
+
+Return the document title (i.e. the word you used to retrieve the document from the parser)
+
+=back
+
+=head1 Methods for Wiktionary::Parser::Section
+
+=over
+
+=item B<get_content>
+
+Returns an arrayref containing lines of text from the section of the document
+
+=item B<get_header>
+
+Returns the section heading name
+
+=item B<get_section_number>
+
+Returns the number of this section (e.g. 1.2.1)
+
+=item B<get_parent_section>
+
+Return the Wiktionary::Parser::Section instane of the parent section.  e.g. if you call this on section 1.2.1, it'll return the object for section 1.2
+
+=item B<get_parent_language_section>
+
+For whatever section you are currently on,  return the section object any number of levels above this one that refers to the language this section is part of.  e.g. if you have a section called "Noun", and above it is a section called "Etymology", above that may be the section called "English" - which this provides access to.
+
+
+=item B<get_ancestor_sections>
+
+Return an arrayref containing all sections above this one in the hierarchy.  
+
+
+=back
+
+=head1 Methods for Wiktionary::Parser::Section::Translations
+
+=over
+
+This is a subclass of Wiktionary::Parser::Section
+
+=item B<get_word_senses>
+
+Returns a hash mapping token => Wiktionary::Parser::Section::Translation::WordSense object
+
+=item B<get_word_sense(WORD)>
+
+Returns the Wiktionary::Parser::Section::Translation::WordSense object for this given word sense
+
+=back
+
+=head1 Methods for Wiktionary::Parser::Section::Translations::WordSense
+
+=over
+
+=item B<get_word_sense>
+
+Returns a string name of the word sense
+
+=item B<get_translations>
+
+Returns a hashref mapping language => [Wiktionary::Parser::Section::Translations::WordSense::Lexeme objects]
+
+=back
+
+=head1 Methods for Wiktionary::Parser::Section::Translations::WordSense::Lexeme
+
+=over
+
+=item B<get_lexeme>
+
+Returns a string of the actual translated word
+
+=item B<get_language_code>
+
+Returns the language iso code corresponding to this lexeme
+
+=item B<get_language_name>
+
+Returns the full language name corresponding to this lexeme
+
+=back
+
 
 =cut
