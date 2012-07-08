@@ -21,15 +21,15 @@ sub new {
 
 	my $self = bless \%args, $class;
 
-	$self->{mediawiki_client} = MediaWiki::API->new({ api_url => $self->{wiktionary_url}});
+	$self->{mediawiki_client} = MediaWiki::API->new({ api_url => $self->get_wiktionary_url() });
 
 	return $self;
 }
 
 
-# create the base url for the request composed of the host and port
+# create the base url 
 # add http if it hasn't already been prepended
-sub wiktionary_url {
+sub get_wiktionary_url {
 	my $self = shift;
 	my $url = $self->{wiktionary_url};
 	$url =~ s|/$||;
