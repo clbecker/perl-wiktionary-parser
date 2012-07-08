@@ -7,18 +7,22 @@ use LWP;
 use JSON::XS qw(decode_json);
 use Encode qw(decode encode);
 
+use MediaWiki::API;
 use Wiktionary::Parser::Document;
 use Carp::Always;
-our $VERSION = 0.01;
+
+our $VERSION = 0.02;
 
 sub new {
 	my $class = shift;
 	my %args = @_;
 
-	$args{lang} = 'en'; # only works for en.wiktionary.org now
-	$args{wiktionary_url} ||= sprintf('%s.wiktionary.org/w/api.php',$args{lang});
+	$args{wiktionary_url} ||= 'http://en.wiktionary.org/w/api.php';
 
 	my $self = bless \%args, $class;
+
+	$self->{mediawiki_client} = MediaWiki::API->new({ api_url => $self->{wiktionary_url}});
+
 	return $self;
 }
 
@@ -38,11 +42,12 @@ sub get_document {
 	my %args = @_;
 	my $title = $args{title};
 
-	my $content = $self->get_page_content(
+	my $page_data = $self->get_page_data(
 		title => $title,
 	);
+	my $content = $page_data->{'*'}; 
 
-	die "no content found for $title" unless $content;
+	return unless $content;
 
 	return $self->parse_page_content(
 		content => $content,
@@ -54,9 +59,8 @@ sub get_document {
 sub parse_page_content {
 	my $self = shift;
 	my %args = @_;
-	my $content = $args{content};
+	my $document_content = $args{content};
 	my $title = $args{title};
-	my $document_content = $self->extract_document(content => $content);
 
 	die 'document not defined' unless defined $document_content;
 
@@ -79,7 +83,7 @@ sub parse_page_content {
 			my $n = length($markup);
 			$section_number[$n-2]++;
 			$#section_number = $n-2;
-			my $section_number = join('.',map {$_ || 0} @section_number);
+			my $section_number = join('.',map {$_ || ()} @section_number);
 
 			$current_section = $document->create_section(
 				section_number => $section_number,
@@ -93,104 +97,25 @@ sub parse_page_content {
 	return $document;
 }
 
-
-sub extract_document {
-	my $self = shift;
-	my %args = @_;
-	my $content = $args{content};
-
-	my $page;
-	if ($content->{query} && $content->{query}{pages}) {
-		my @pages = keys %{$content->{query}{pages}};
-		$page = shift @pages;
-	}
-	return unless defined $page;
-	
-	my @revisions = @{$content->{query}{pages}{$page}{revisions} || []};
-
-	my $doc = shift @revisions;
-	return $doc->{'*'};
-}
-
-sub get_page_content {
+sub get_page_data {
 	my $self = shift;
 	my %args = @_;
 	my $title = $args{title};
     
 	die 'title is not defined' unless defined $title;
 
-	my $content = $self->remote_request(
-		path => $self->wiktionary_url(),
-		params => [
-			titles => $title,
-			action => 'query',
-			prop   => 'revisions',
-			rvprop => 'content',
-			format => 'json',
-		]
-	);
-	
-	my $parsed_data = decode_json($content);
+	my $page_data = $self->get_mediawiki_client()->get_page({title => $title});
 
-	return $parsed_data;
+	return $page_data;
 }
 
-sub get_page_id {
+sub get_mediawiki_client {
 	my $self = shift;
-	my %args = @_;
-	my $title = $args{title};
-
-	my $response_content = $self->remote_request(
-		path => $self->wiktionary_url(),
-		params => [
-			titles => $title,
-			action => 'query',
-			format => 'json',
-		]
-	);
-
-	my $page_data = decode_json($response_content);
-
-	if ($page_data->{query} &&
-	    $page_data->{query}{pages}) {
-		my @pages = keys %{$page_data->{query}{pages} || {}};
-		return $pages[0];
-	}
-
-	return;
+	return $self->{mediawiki_client};
 }
 
-sub remote_request {
-	my $self = shift;
-	my %args = @_;
-	my $path = $args{path} || '';
-	my $params = $args{params};
 
-	die 'params must be an array' unless ref $params eq 'ARRAY';
 
-	my $uri = URI->new($path);
-	$uri->query_form(@{$params || []});
-
-	my $response = $self->user_agent()->get($uri);
-
-	die 'no response' unless $response;
-	unless ($response->is_success()) {
-		die sprintf("Error: ",
-				  $response->code(),
-				  $response->message(),
-			  );
-	}
-
-	my $body = $response->decoded_content();
-}
-
-sub user_agent {
-	return LWP::UserAgent->new(
-		timeout => 10,
-		agent => "Wiktionary::Parser::$VERSION",
-		keep_alive => 1,
-	);
-}
 
 1;
 

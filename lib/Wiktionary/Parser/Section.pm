@@ -60,10 +60,25 @@ sub get_parent_section {
 		$num =~ s/\.\d+$//;
 		$num =~ s/\.0*$//; # remove trailing zero's - if sections were added too deep e.g. secttion ===== under ===
 
-		return $self->get_document()->get_section($num);
+		return $self->get_document()->get_section(number => $num);
 	}
 	return;
 }
+
+sub get_child_sections {
+	my $self = shift;
+	my $section_number = $self->get_section_number();
+	my @section_numbers = $self->get_document()->get_section_numbers();
+
+	my @children;
+	for my $num (@section_numbers) {
+		next unless $num =~ m/^$section_number\.\d+$/;
+		next if $num eq $section_number;
+		push @children, $self->get_document()->get_section(number => $num);
+	}	  
+	return \@children;
+}
+
 
 # returns the topmost section in the hierarchy
 sub get_parent_language_section {

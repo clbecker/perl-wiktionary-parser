@@ -8,6 +8,13 @@ use Wiktionary::Parser::Section::Translations;
 use Wiktionary::Parser::Section::PartofSpeech;
 use Wiktionary::Parser::Section::Etymology;
 use Wiktionary::Parser::Section::Synonym;
+use Wiktionary::Parser::Section::Hyponym;
+use Wiktionary::Parser::Section::Hypernym;
+use Wiktionary::Parser::Section::Antonym;
+use Wiktionary::Parser::Section::Etymology;
+use Wiktionary::Parser::Section::Pronunciation;
+use Wiktionary::Parser::Section::DerivedTerms;
+use Wiktionary::Parser::Section::AlternativeForms;
 
 sub new {
 	my $class = shift;
@@ -30,15 +37,36 @@ sub add_section {
 	$self->{sections}{$section_number} = $section;
 }
 
+# by default return a list of all sections
+# if title is given, return all sections matching that title
+# title may be a string or regex
 sub get_sections {
 	my $self = shift;
+	my %args = @_;
+	my $title = $args{title};
+
+	if ($title) {
+		my @sections;
+		for my $number ($self->get_section_numbers()) {
+			
+			next unless $self->get_section(number => $number)->get_header() =~ m/$title/i;
+			push @sections, $self->get_section(number => $number);
+		}
+		return \@sections;
+	}
+
 	return $self->{sections};
 }
 
 sub get_section {
 	my $self = shift;
-	my $number = shift;
-	return $self->{sections}{$number};
+	my %args = @_;
+	my $number = $args{number}; # lookup section by number
+
+	if ($number) {
+		return $self->{sections}{$number};
+	}
+	return;
 }
 
 # act as a section factory
@@ -56,6 +84,18 @@ sub create_section {
 		$class = 'Wiktionary::Parser::Section::Etymology';
 	} elsif ($header =~ m/synonym/i) {
 		$class = 'Wiktionary::Parser::Section::Synonym';
+	} elsif ($header =~ m/hypernym/i) {
+		$class = 'Wiktionary::Parser::Section::Hypernym';
+	} elsif ($header =~ m/hyponym/i) {
+		$class = 'Wiktionary::Parser::Section::Hyponym';
+	} elsif ($header =~ m/antonym/i) {
+		$class = 'Wiktionary::Parser::Section::Antonym';
+	} elsif ($header =~ m/pronunciation/i) {
+		$class = 'Wiktionary::Parser::Section::Pronunciation';
+	} elsif ($header =~ m/alternat\w+ form/i) {
+		$class = 'Wiktionary::Parser::Section::AlternativeForms';
+	} elsif ($header =~ m/derived\sterm/i) {
+		$class = 'Wiktionary::Parser::Section::DerivedTerms';
 	} elsif ($self->is_part_of_speech($header)) {
 		$class = 'Wiktionary::Parser::Section::PartofSpeech'
 	} else {
@@ -77,7 +117,7 @@ sub get_table_of_contents {
 	my $self = shift;
 	my @contents;
 	for my $number ($self->get_section_numbers()) {
-		push @contents, sprintf("%s,%s",$number,$self->get_section($number)->get_header());
+		push @contents, sprintf("%s,%s",$number,$self->get_section(number => $number)->get_header());
 	}
 	return \@contents;
 }
@@ -100,13 +140,24 @@ sub get_synonym_sections {
 	return $self->get_sections_of_type('Wiktionary::Parser::Section::Synonym');
 }
 
+sub get_hypernym_sections {
+	my $self = shift;
+	return $self->get_sections_of_type('Wiktionary::Parser::Section::Hypernym');
+}
+
+sub get_hyponym_sections {
+	my $self = shift;
+	return $self->get_sections_of_type('Wiktionary::Parser::Section::Hyponym');
+}
+
+
 sub get_sections_of_type {
 	my $self = shift;
 	my $type = shift;
 	my @sections;
 	for my $number ($self->get_section_numbers()) {
-		next unless $self->get_section($number)->isa($type);
-		push @sections, $self->get_section($number);
+		next unless $self->get_section(number => $number)->isa($type);
+		push @sections, $self->get_section(number => $number);
 	}
 	return \@sections;
 }
@@ -114,7 +165,7 @@ sub get_sections_of_type {
 
 sub get_section_numbers {
 	my $self = shift;
-	return (sort {$a cmp $b} keys %{$self->{sections} || {}});
+	return (sort {$a cmp $b} grep {$_} keys %{$self->{sections} || {}});
 }
 
 
@@ -134,30 +185,124 @@ sub get_word_senses {
 }
 
 
+
 sub get_synonyms {
 	my $self = shift;
 	my %args = @_;
+	return $self->get_classifications(
+		class => 'Wiktionary::Parser::Section::Synonym',
+	);
+}
 
-	if ($self->{__get_synonyms__}) {
-		return $self->{__get_synonyms__};
-	}
+sub get_hyponyms {
+	my $self = shift;
+	my %args = @_;
+	return $self->get_classifications(
+		class => 'Wiktionary::Parser::Section::Hyponym',
+	);
+}
 
-	my $sections = $self->get_synonym_sections();
-	my %synonyms;
+sub get_hypernyms {
+	my $self = shift;
+	my %args = @_;
+	return $self->get_classifications(
+		class => 'Wiktionary::Parser::Section::Hypernym',
+	);
+}
+
+sub get_antonyms {
+	my $self = shift;
+	my %args = @_;
+	return $self->get_classifications(
+		class => 'Wiktionary::Parser::Section::Antonym',
+	);
+}
+
+
+sub get_classifications {
+	my $self = shift;
+	my %args = @_;
+	my $class = $args{class};
+
+#	if ($self->{"__get_${class}__"}) {
+#		return $self->{"__get_${class}__"};
+#	}
+	my $sections = $self->get_sections_of_type($class);
+	my %x_nyms;
 	for my $section (@{$sections || []}) {
-		my $synonyms = $section->get_synonyms();
-		for my $synonym (@{$synonyms || []}) {
+		my $x_nyms = $section->get_groups();
+		for my $x_nym (@{$x_nyms || []}) {
 
-			my $lang = $synonym->{language};
-			my $sense = $synonym->{sense};
-			push @{$synonyms{$lang}{$sense}}, @{$synonym->{lexemes} || []};
+			my $lang = $x_nym->{language};
+			my $sense = $x_nym->{sense};
+			push @{$x_nyms{$lang}{$sense}}, @{$x_nym->{lexemes} || []};
 		}
 	}
 
-	$self->{__get_synonyms__} = \%synonyms;
+#	$self->{"__get_${class}__"} = \%x_nyms;
 
-	return \%synonyms;
+	return \%x_nyms;
 }
+
+
+
+
+
+
+sub get_pronunciations {
+	my $self = shift;
+	my %args = @_;
+	my $class = $args{class} || 'Wiktionary::Parser::Section::Pronunciation';
+
+	my $sections = $self->get_sections_of_type($class);
+	my %meta;
+	my %seen;
+
+	for my $section (@{$sections || []}) {
+
+		{
+			my $hr = $section->get_pronunciations();
+			for my $lang (keys %{$hr}) {
+				push @{$meta{$lang}{pronunciation}}, @{$hr->{$lang}};
+			}
+		}
+
+		{
+			my $hr = $section->get_audio();
+			for my $lang (keys %{$hr}) {
+				# remove duplicates
+				push @{$meta{$lang}{audio}}, grep {!$seen{audio}{$lang}{ $_->{file} }++} @{$hr->{$lang}};
+			}
+		}
+
+		{
+			my $hr = $section->get_rhymes();
+			for my $lang (keys %{$hr}) {
+				push @{$meta{$lang}{rhyme}}, @{$hr->{$lang}};
+			}
+		}
+
+		{
+			my $hr = $section->get_homophones();
+			for my $lang (keys %{$hr}) {
+				push @{$meta{$lang}{homophone}}, @{$hr->{$lang}};
+			}
+		}
+
+		{
+			my $hr = $section->get_hyphenations();
+			for my $lang (keys %{$hr}) {
+				push @{$meta{$lang}{hyphenation}}, @{$hr->{$lang}};
+			}
+		}
+
+
+	}
+
+	return \%meta;
+}
+
+
 
 sub get_parts_of_speech {
 	my $self = shift;

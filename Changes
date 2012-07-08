@@ -1,7 +1,12 @@
 Revision history for Wiktionary::Parser
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.01    2012-07-05
+        First version
 
+0.02    2012-07-07
+        accessors for translations, synonyms, hyponyms, hypernyms, antonyms, pronunciations, word senses, parts of speech
+        stubbed out accessors for etymologies, derived words, alternative forms
+        added methods for accessing and traversing document sections
+        utilize MediaWiki::API package
 
 

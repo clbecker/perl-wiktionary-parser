@@ -51,6 +51,17 @@ sub add_content {
 				lexemes => \@lexemes,
 			);
 		}
+		# (''in the future''): [[backward]], [[backwards]], into the [[past]]
+	} elsif ($line =~ m/\(\'+([^\']+)\'+\)/) {
+		my $sense = $1;
+		my @lexemes = $line =~ m/\[\[([^\]]+)\]\]/g;
+
+		$self->add_group(
+			sense => $sense,
+			language => $language,
+			lexemes => \@lexemes,
+		);
+		
 	} else {
 		my @lexemes = $line =~ m/\[\[([^\]]+)\]\]/g;
 		$self->add_group(
@@ -76,4 +87,11 @@ sub add_group {
 		lexemes => $lexemes,
 	};
 }
+
+sub get_groups {
+	my $self = shift;
+	return $self->{groups};
+}
+
+
 1;
