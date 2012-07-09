@@ -16,7 +16,7 @@ sub new {
 	# we can still get the part of speech and language from section headers
 	# if they are not defined in markup
 	$self->set_part_of_speech($self->get_header());
-	$self->set_language_code($self->get_parent_language_section()->get_header());
+	$self->set_language_code($self->get_language());
 	return $self;
 }
 

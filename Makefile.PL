@@ -14,6 +14,8 @@ WriteMakefile(
 	PL_FILES            => {},
 	PREREQ_PM => {
 		'MediaWiki::API' => 0,
+		'Locale::Codes::Language' => 0,
+		'Text::Unidecode' => 0,
 		'Carp::Always' => 0,
 	},
 	META_MERGE => {

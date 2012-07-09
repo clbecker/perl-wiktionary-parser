@@ -25,8 +25,7 @@ sub add_content {
 	# * {{l|en|blee}}
 	# * {{l|pt|para|gloss=[[to]], [[for]]}}
 
-	my $language_node = $self->get_parent_language_section();
-	my $language = $language_node ? $language_node->get_header() : '';
+	my $language = $self->get_language() || '';
 
 	if ($line =~ m/^\*\s\{\{([^\}]+)\}\}/) {
 		my $meta = $1;
@@ -62,6 +61,20 @@ sub add_content {
 			lexemes => \@lexemes,
 		);
 		
+	} elsif ($line =~ m/Wikisaurus/) {
+		# add wikisaurus tags (e.g. Wikisaurus:cat)
+
+		my @links = $line =~ m/\[\[([^\]]+)\]\]/g;
+
+		for my $link (@links) {
+			my ($ws,$token) = split(/:/,$link);
+			$self->add_group(
+				sense => $token,
+				language => $language,
+				lexemes => [$link],
+			);
+		}
+
 	} else {
 		my @lexemes = $line =~ m/\[\[([^\]]+)\]\]/g;
 		$self->add_group(

@@ -1,4 +1,4 @@
-package  Wiktionary::Parser::Document;
+package Wiktionary::Parser::Document;
 
 use strict;
 use warnings;
@@ -15,23 +15,48 @@ use Wiktionary::Parser::Section::Etymology;
 use Wiktionary::Parser::Section::Pronunciation;
 use Wiktionary::Parser::Section::DerivedTerms;
 use Wiktionary::Parser::Section::AlternativeForms;
+use Wiktionary::Parser::Section::WikisaurusSection;
+use Wiktionary::Parser::Language;
 
 sub new {
 	my $class = shift;
 	my %args = @_;
+	
+	my $sections = delete $args{sections};
+
 	my $self = bless \%args, $class;
+
+	$self->{verbose} ||= 0;
+
+	# if a document is instantiated with existing section objects
+	# add them one by one so that they get indexed
+	if ($sections && @$sections) {
+		for my $section (@$sections) {
+			$self->add_section($section);
+		}
+	}
+
 	return $self;
 }
 
+# return the title of this document
 sub get_title {
 	my $self = shift;
 	return $self->{title};
 }
 
+# add a section object to the document
 sub add_section {
 	my $self = shift;
 	my $section = shift;
-	die 'given value is not of type Wiktionary::Parser::Section' unless $section->isa('Wiktionary::Parser::Section');
+
+	unless ($section->isa('Wiktionary::Parser::Section')) {
+		die sprintf(
+			'given value (%s) is not of type Wiktionary::Parser::Section',
+			ref($section)
+		);
+	}
+	# TODO: index sections by other attributes?
 
 	my $section_number = $section->get_section_number();
 	$self->{sections}{$section_number} = $section;
@@ -58,6 +83,54 @@ sub get_sections {
 	return $self->{sections};
 }
 
+# given some criteria to select a set of sections
+# return a document object encompassing only those sections
+sub get_sub_document {
+	my $self = shift;
+	my %args = @_;
+	my $title = $args{title};
+
+	# if no section name pattern was passed in, just return the whole document
+	return $self unless $title;
+
+	my $sections = $self->get_sections(title => $title);
+	
+	return unless $sections && @$sections;
+	
+	my @children;
+	for my $section (@$sections) {
+		push @children, @{$section->get_child_sections() || []};
+	}
+
+	push @$sections, @children;
+	my $sub_document = $self->create_sub_document(
+		sections => $sections,
+	);
+
+	return $sub_document;
+}
+
+
+# return a document object consisting of just the given language section and its children
+sub get_language_section {
+	my $self = shift;
+	my %args = @_;
+	my $language = $args{language} or die 'language needs to be specified';
+
+	# go through the document top to bottom and return the first matching section
+	my $section;
+	for my $number ($self->get_section_numbers()) {
+		next unless $self->get_section(number => $number)->get_header() =~ m/^$language$/i;
+		$section = $self->get_section(number => $number);
+		last;
+	}
+	if ($section) {
+		return $section->get_child_document();
+	}
+
+	return;
+}
+
 sub get_section {
 	my $self = shift;
 	my %args = @_;
@@ -78,7 +151,9 @@ sub create_section {
 
 	my $section;
 	my $class;
-	if ($header =~ m/translation/i) {
+	if ($self->get_title() =~ m/^Wikisaurus\:/) {
+		$class = 'Wiktionary::Parser::Section::WikisaurusSection';
+	} elsif ($header =~ m/translation/i) {
 		$class = 'Wiktionary::Parser::Section::Translations';
 	} elsif ($header =~ m/etymology/i) {
 		$class = 'Wiktionary::Parser::Section::Etymology';
@@ -150,6 +225,11 @@ sub get_hyponym_sections {
 	return $self->get_sections_of_type('Wiktionary::Parser::Section::Hyponym');
 }
 
+sub get_pronunciation_sections {
+	my $self = shift;
+	return $self->get_sections_of_type('Wiktionary::Parser::Section::Pronunciation');
+}
+
 
 sub get_sections_of_type {
 	my $self = shift;
@@ -183,8 +263,6 @@ sub get_word_senses {
 
 	return \@word_senses;
 }
-
-
 
 sub get_synonyms {
 	my $self = shift;
@@ -224,35 +302,76 @@ sub get_classifications {
 	my %args = @_;
 	my $class = $args{class};
 
-#	if ($self->{"__get_${class}__"}) {
-#		return $self->{"__get_${class}__"};
-#	}
+	if ($self->{"__get_${class}__"}) {
+		return $self->{"__get_${class}__"};
+	}
+
 	my $sections = $self->get_sections_of_type($class);
 	my %x_nyms;
+
 	for my $section (@{$sections || []}) {
 		my $x_nyms = $section->get_groups();
 		for my $x_nym (@{$x_nyms || []}) {
 
 			my $lang = $x_nym->{language};
 			my $sense = $x_nym->{sense};
-			push @{$x_nyms{$lang}{$sense}}, @{$x_nym->{lexemes} || []};
+
+			my @lexemes = @{$x_nym->{lexemes} || []};
+
+
+			my @full_word_list;
+			while (my $lexeme = shift @lexemes) {
+
+
+				# look for links to wikisaurus entries
+				# and include content from those documents
+				
+				if ($lexeme =~ m/^Wikisaurus:/) {
+					my $wikisaurus_document = $self->get_linked_document(title => $lexeme);
+					my $ws_sections = $wikisaurus_document->get_sections(title => $section->get_header());
+
+					for my $ws_section (@{$ws_sections || []}) {
+						my $word_list = $ws_section->get_words();
+						for my $word (@{$word_list || []}) {
+							push @full_word_list, $word->{word};
+						}
+					}
+				} else {
+					push @full_word_list, $lexeme;
+				}
+			}
+
+			push @{$x_nyms{$lang}{sense}{$sense}}, @full_word_list;
+			$x_nyms{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
+
 		}
 	}
 
-#	$self->{"__get_${class}__"} = \%x_nyms;
+	$self->{"__get_${class}__"} = \%x_nyms;
 
 	return \%x_nyms;
 }
 
+# return lists of words from the Derived Terms sections broken down by language
+sub get_derived_terms {
+	my $self = shift;
+	my $class = 'Wiktionary::Parser::Section::DerivedTerms';
+	my $sections = $self->get_sections_of_type($class);
+	my %terms;
+	for my $section (@{$sections || []}) {
+		my $hr = $section->get_derived_terms();
+		for my $language (keys %{$hr}) {
+			push @{$terms{$language}}, @{$hr->{$language} || []}
+		}
+	}
+	return \%terms;
+}
 
-
-
-
-
+# return all pronunciation metadata broken down by language
 sub get_pronunciations {
 	my $self = shift;
 	my %args = @_;
-	my $class = $args{class} || 'Wiktionary::Parser::Section::Pronunciation';
+	my $class = 'Wiktionary::Parser::Section::Pronunciation';
 
 	my $sections = $self->get_sections_of_type($class);
 	my %meta;
@@ -264,6 +383,7 @@ sub get_pronunciations {
 			my $hr = $section->get_pronunciations();
 			for my $lang (keys %{$hr}) {
 				push @{$meta{$lang}{pronunciation}}, @{$hr->{$lang}};
+				$meta{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
 			}
 		}
 
@@ -272,6 +392,7 @@ sub get_pronunciations {
 			for my $lang (keys %{$hr}) {
 				# remove duplicates
 				push @{$meta{$lang}{audio}}, grep {!$seen{audio}{$lang}{ $_->{file} }++} @{$hr->{$lang}};
+				$meta{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
 			}
 		}
 
@@ -279,6 +400,7 @@ sub get_pronunciations {
 			my $hr = $section->get_rhymes();
 			for my $lang (keys %{$hr}) {
 				push @{$meta{$lang}{rhyme}}, @{$hr->{$lang}};
+				$meta{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
 			}
 		}
 
@@ -286,6 +408,7 @@ sub get_pronunciations {
 			my $hr = $section->get_homophones();
 			for my $lang (keys %{$hr}) {
 				push @{$meta{$lang}{homophone}}, @{$hr->{$lang}};
+				$meta{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
 			}
 		}
 
@@ -293,6 +416,7 @@ sub get_pronunciations {
 			my $hr = $section->get_hyphenations();
 			for my $lang (keys %{$hr}) {
 				push @{$meta{$lang}{hyphenation}}, @{$hr->{$lang}};
+				$meta{$lang}{language} ||= $self->get_language_mapper()->code2language($lang);
 			}
 		}
 
@@ -319,12 +443,15 @@ sub get_parts_of_speech {
 		my $pos = $section->get_part_of_speech();
 		my $lang_code = $section->get_language_code();
 		next unless $pos && $lang_code;
-		push @{$parts_of_speech{$lang_code}}, $pos;
+		push @{$parts_of_speech{$lang_code}{part_of_speech}}, $pos;
+		$parts_of_speech{$lang_code}{language} ||= get_language_mapper()->code2language($lang_code);
+
 	}
 
 	$self->{__get_parts_of_speech__} = \%parts_of_speech;
 	return \%parts_of_speech;
 }
+
 
 sub get_translations {
 	my $self = shift;
@@ -383,5 +510,78 @@ sub is_part_of_speech {
 	return 0;
 }
 
+
+# call the parser to download a page for a term in this document
+sub get_linked_document {
+	my $self = shift;
+	my %args = @_;
+	my $title = $args{title};
+
+	$self->{linked_documents} ||= {};
+	if ($self->{linked_documents}{$title}) {
+		return $self->{linked_documents}{$title};
+	}
+
+	$self->debug("Getting Linked Page: $title");
+
+	my $parser = $self->get_parser();
+	return unless $parser;
+
+	$self->{linked_documents}{$title} = $parser->get_document(title => $title);
+	return $self->{linked_documents}{$title};
+}
+
+sub get_parser {
+	my $self = shift;
+	return $self->{parser};
+}
+
+sub get_language_mapper {
+	my $self = shift;
+	return $self->{language_map} ||= Wiktionary::Parser::Language->new();
+}
+
+
+# create a document object with a subset of sections
+sub create_sub_document {
+	my $self = shift;
+	my %args = @_;
+	my $sections = $args{sections} or die 'sections must be defined';
+	return __PACKAGE__->new( sections => $sections, title => $self->get_title() );
+
+}
+
+sub debug {
+	my $self = shift;
+	return unless $self->{verbose};
+	local $\ = "\n";
+	local $, = ' ';
+	print 'DEBUG:',@_;
+}
+
+
+sub add_category {
+	my $self = shift;
+	my %args = @_;
+	my $category = $args{category};
+	push @{$self->{categories}},$category;
+}
+
+sub add_language_link {
+	my $self = shift;
+	my %args = @_;
+	my $tag = $args{tag};
+	push @{$self->{language_links}},$tag;
+}
+
+sub get_language_links {
+	my $self = shift;
+	return $self->{language_links};
+}
+
+sub get_categories {
+	my $self = shift;
+	return $self->{categories};
+}
 
 1;

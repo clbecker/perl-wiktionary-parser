@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+use Wiktionary::Parser::TemplateParser;
+use Wiktionary::Parser::Language;
+
 sub new {
 	my $class = shift;
 	my %args = @_;
@@ -12,6 +15,8 @@ sub new {
 	$args{header} = lc($args{header}) if $args{header};
 
 	my $self = bless \%args, $class;
+
+	$self->{template_parser} = Wiktionary::Parser::TemplateParser->new();
 
 	return $self;
 }
@@ -58,33 +63,49 @@ sub get_parent_section {
 	my $num = $self->get_section_number();
 	if ($num =~ m/\./) {
 		$num =~ s/\.\d+$//;
-		$num =~ s/\.0*$//; # remove trailing zero's - if sections were added too deep e.g. secttion ===== under ===
+		$num =~ s/\.0*$//; # remove trailing zero's - if sections were added too deep e.g. section ===== under ===
 
 		return $self->get_document()->get_section(number => $num);
 	}
 	return;
 }
 
+
+# return a list of sections below this one
 sub get_child_sections {
 	my $self = shift;
 	my $section_number = $self->get_section_number();
 	my @section_numbers = $self->get_document()->get_section_numbers();
 
-	my @children;
+	my @children = ($self);
 	for my $num (@section_numbers) {
-		next unless $num =~ m/^$section_number\.\d+$/;
+		next unless $num =~ m/^$section_number\.\d+/;
 		next if $num eq $section_number;
 		push @children, $self->get_document()->get_section(number => $num);
-	}	  
+	}
 	return \@children;
+}
+
+# return a document object containing only the child sections of this section
+sub get_child_document {
+	my $self = shift;
+	my $children = $self->get_child_sections();
+
+	return unless $children && @$children;
+	return $self->get_document()->create_sub_document(
+		sections => $children,
+	);
 }
 
 
 # returns the topmost section in the hierarchy
-sub get_parent_language_section {
+sub _get_parent_language_section {
 	my $self = shift;
 	my $sections = $self->get_ancestor_sections();
-	return $sections->[-1];
+	if ($sections && @$sections) {
+		return $sections->[-1];
+	}
+	return $self;
 }
 
 # get all parent sections up to the top level
@@ -99,6 +120,23 @@ sub get_ancestor_sections {
 
 	return \@ancestors;
 }
+
+# get the language from the parent section at the top of the section hierarchy
+sub get_language {
+	my $self = shift;
+	my $parent = $self->_get_parent_language_section();
+	return unless $parent;
+	my $language_name = $parent->get_header();
+	my $lang = Wiktionary::Parser::Language->new();
+	my $code = $lang->language2code($language_name);
+	return $code;
+}
+
+sub get_template_parser {
+	my $self = shift;
+	return $self->{template_parser};
+}
+
 
 1;
 

@@ -11,7 +11,9 @@ use MediaWiki::API;
 use Wiktionary::Parser::Document;
 use Carp::Always;
 
-our $VERSION = 0.02;
+our $VERSION = 0.03;
+
+my $CACHE;
 
 sub new {
 	my $class = shift;
@@ -21,6 +23,7 @@ sub new {
 
 	my $self = bless \%args, $class;
 
+	$self->{cache} = 0;  # 1: cache content locally, 0: don't
 	$self->{mediawiki_client} = MediaWiki::API->new({ api_url => $self->get_wiktionary_url() });
 
 	return $self;
@@ -42,6 +45,10 @@ sub get_document {
 	my %args = @_;
 	my $title = $args{title};
 
+	if ($self->get_cache($title)) {
+		return $self->get_cache($title);
+	}
+
 	my $page_data = $self->get_page_data(
 		title => $title,
 	);
@@ -49,10 +56,30 @@ sub get_document {
 
 	return unless $content;
 
-	return $self->parse_page_content(
+	my $document = $self->parse_page_content(
 		content => $content,
 		title   => $title,
 	);
+
+	$self->set_cache($title,$document);
+
+	return $document;
+}
+
+
+sub get_cache {
+	my $self = shift;
+	return unless $self->{cache};
+	my $title = shift;
+	return $CACHE->{ $self->get_wiktionary_url() }{$title};
+}
+
+sub set_cache {
+	my $self = shift;
+	return unless $self->{cache};
+	my $title = shift;
+	my $document = shift;
+	$CACHE->{ $self->get_wiktionary_url() }{$title} = $document;
 }
 
 
@@ -68,7 +95,14 @@ sub parse_page_content {
 	my %sections = ();
 	my @section_number = ();
 
-	my $document = Wiktionary::Parser::Document->new( title => $title );
+	my $document = Wiktionary::Parser::Document->new( 
+		title => $title,
+		# pass in a parser if we want this document to follow
+		# links to other documents (e.g. wikisaurus) 
+		# and include metadata from them
+		parser => $self,
+	);
+
 	my $current_section = $document->create_section(
 		section_number => 0,
 		header => $title,
@@ -89,6 +123,12 @@ sub parse_page_content {
 				section_number => $section_number,
 				header => $header,
 			);
+		} elsif ($line =~ m/^\[\[(Category:[^\]]+)\]\]/) {
+		# e.g. [[Category:Animals]]
+			$document->add_category(category => $1);
+		} elsif ($line =~ m/^\[\[([a-z]+:$title)\]\]/) {
+		# e.g. [[de:dog]]
+			$document->add_language_link(tag => $1);
 		} else {
 			$current_section->add_content($line);
 		}

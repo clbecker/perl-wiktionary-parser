@@ -42,7 +42,7 @@ sub add_content {
 					push @context, grep {$_ && $_ ne 'a'} @parts
 				}
 			} elsif ($parts[0] eq 'audio') {
-				my $lang = $self->get_parent_language_section()->get_header();
+				my $lang = $self->get_language();
 				
 				$self->add_audio(
 					language => $lang,
@@ -54,7 +54,7 @@ sub add_content {
 			} elsif ($parts[0] =~ m/(rhyme|homophone|hyphenation)/) {
 				
 				my $meta = $self->parse_template(@parts);
-				$meta->{lang} ||= $self->get_parent_language_section()->get_header();
+				$meta->{lang} ||= $self->get_language();
 
 				$self->add_category(
 					category => $1,
@@ -67,7 +67,8 @@ sub add_content {
 
 			} else {
 				my $meta = $self->parse_template(@parts);
-				$meta->{lang} ||= $self->get_parent_language_section()->get_header();
+				$meta->{lang} ||= $self->get_language();
+
 				$self->add_pronunciation(
 					language => $meta->{lang},
 					representation => $meta->{representation},
@@ -114,7 +115,7 @@ sub add_pronunciation {
 		pronunciation  => $args{pronunciation},
 		context => $args{context},
 	);
-	push @{$self->{pronunciations}{$lang}},$pronunciation;
+	push @{$self->{pronunciation}{$lang}},$pronunciation;
 }
 
 
@@ -152,7 +153,7 @@ sub add_audio {
 
 sub get_pronunciations {
 	my $self = shift;
-	return $self->{pronunciations};
+	return $self->{pronunciation};
 }
 
 sub get_audio {

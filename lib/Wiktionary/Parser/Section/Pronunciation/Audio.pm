@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+use MediaWiki::API;
+use File::Path;
+
 # keys:
 #  file: name of the audio file
 #  text: text label for this file
@@ -30,10 +33,44 @@ sub get_context {
 	return $self->{context};
 }
 
-# TODO: create method for downloading audio file
-#sub download_file {
-#	my $self = shift;
-#	my $file_key = 'File:'.$self->{file}
-#}
+sub download_file {
+	my $self = shift;
+	my %args = @_;
+	my $directory = $args{directory} or die 'you need to specify a directory to download to';
+	my $filename = $self->{file};
+
+	return unless $filename;	
+
+	my $api = MediaWiki::API->new({ 
+		api_url => 'http://en.wiktionary.org/w/api.php',
+	});
+
+	my $file_content = $api->download({title => "File:$filename"});
+
+	if ($api->{error}->{code}) {
+		print STDERR $api->{error}->{code} . ': ' . $api->{error}->{details};
+	}
+
+	unless (defined $file_content && bytes::length($file_content)) {
+		print STDERR "'$filename' doesn't exist or failed to download";
+		return;
+	}
+
+	# create local directory if it doesn't exist
+	unless (-e $directory) {
+		File::Path::mkpath($directory);
+	}
+
+	# also verify directory is writable
+	unless (-w $directory) {
+		die "unable to write to '$directory'";
+	}
+	my $download_location = "$directory/$filename";
+	open (my $fh, ">",$download_location) or die $!;
+	print $fh $file_content;
+	close $fh;
+
+	return $download_location;
+}
 
 1;
