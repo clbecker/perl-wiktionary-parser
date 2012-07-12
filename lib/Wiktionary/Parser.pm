@@ -11,7 +11,7 @@ use MediaWiki::API;
 use Wiktionary::Parser::Document;
 use Carp::Always;
 
-our $VERSION = 0.03;
+our $VERSION = 0.04;
 
 my $CACHE;
 

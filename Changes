@@ -17,7 +17,7 @@ Revision history for Wiktionary::Parser
         Normalize language codes and provide consistent language names
 
 
-0.04    2012-07-XX
+0.04    2012-07-11
         Added unit test for parsing a document
         Added unit test for parsing translations
         Refactors translation parser
