@@ -9,7 +9,7 @@ use Wiktionary::Parser::Section::Translations;
 use Wiktionary::Parser::Document;
 
 my @first = (
-	'{{trans-top|fruit}}',
+	'{{trans-top|test-word-sense}}',
 );
 
 my @lines = (
@@ -50,7 +50,7 @@ my @lines = (
 	 output => \&result_gd,
 	},
 	{
-	 input => '* Sindhi: {{sd-Arab|[[نارنگِي]]}} (narangi) {{f}',
+	 input => '* Sindhi: {{sd-Arab|[[نارنگِي]]}} (narangi) {{f}} ',
 	 output => \&result_sd,	 
 	},
 	{
@@ -76,7 +76,20 @@ my @lines = (
 	{ 
 	 input => '* Irish: [[dath oráiste]] {{m}}, {{t|ga|oráiste}}',
 	 output => \&result_ga, 
-	}
+	},
+	{
+	 input => '*: [[Egyptian Arabic]]: {{tø|arz|كلب|m|tr=kalb|sc=Arab}}',
+	 output => \&result_arz2,
+	},
+	{
+	 input => '* Ojibwe: [[ᐊᓂᒧᔥ]] ([[animosh]]) {{s}}, [[ᐊᓂᒧᔕᒃ]] ([[animoshag]]) {{p}}',	 
+	 output => \&result_oj
+	},
+	{
+	 input => '*: Hebrew: [[כלבא]] (kalbā’) {{m}}, [[כלבתא]] (kalbtā’) {{f}}',
+	 output => \&result_he,
+	},
+
 );
 
 for my $hr (@lines) {
@@ -93,14 +106,13 @@ for my $hr (@lines) {
 		sections => [$section],
 	);
 
-#	print Dumper $document->get_translations();
-#	print Dumper $hr->{output}->();
 	unless(is_deeply(
 		$document->get_translations(),
 		$hr->{output}->(),
 		"parsed $hr->{input}",
 	)) {
-		print Dumper $document->get_translations();
+	#	print Dumper {actual => $document->get_translations()};
+	#	print Dumper {fixture => $hr->{output}->()}
 	}
 }
 
@@ -108,7 +120,7 @@ for my $hr (@lines) {
 
 sub result_sv {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'sv' => {
                 'language'     => 'Swedish',
                 'translations' => [ 'apelsin' ]
@@ -119,10 +131,10 @@ sub result_sv {
 
 sub result_fa {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'fa' => {
                 'language'     => 'Persian',
-                'translations' => [ 'نارنج', 'پرتقال' ]
+                'translations' => [ 'porteghâl', 'نارنج', 'پرتقال' ]
             }
         }
     };
@@ -130,7 +142,7 @@ sub result_fa {
 
 sub result_sl {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'sl' => {
                 'language'     => 'Slovenian',
                 'translations' => ['oranževec'],
@@ -141,10 +153,10 @@ sub result_sl {
 
 sub result_ar {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'ar' => {
                 'language' => 'Arabic',
-                'translations' => [ 'برتقالة', 'برتقال' ]
+                'translations' => ['burtuqaal', 'برتقال' , 'برتقالة' ]
             }
         }
     };
@@ -152,10 +164,10 @@ sub result_ar {
 
 sub result_arz {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'arz' => {
                 'language'     => 'Egyptian Arabic',
-                'translations' => [ 'برتقان' ]
+                'translations' => ['burtuʕaan', 'برتقان' ]
             }
         }
     };
@@ -167,12 +179,11 @@ sub result_zh {
 
 sub result_cmn {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'cmn' => {
                 'language'     => 'Mandarin Chinese',
-                'translations' => [
-                    '橙', '橙子',
-                    '橘子', '桔子'
+                'translations' => ['júzi',
+                     '桔子','橘子', '橙', '橙子',
                 ]
             }
         }
@@ -181,7 +192,7 @@ sub result_cmn {
 
 sub result_ku {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'ku' => {
                 'language'     => 'Kurdish',
                 'translations' => [ 'pirteqal', 'پرته‌قاڵ' ]
@@ -192,7 +203,7 @@ sub result_ku {
 
 sub result_gd {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'gd' => {
                 'language'     => 'Gaelic',
                 'translations' => [ 'oraindsear', 'òr-mheas' ]
@@ -203,10 +214,10 @@ sub result_gd {
 
 sub result_sd {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'sd' => {
                 'language'     => 'Sindhi',
-                'translations' => [ 'نارنگِي', 'narangi' ]
+                'translations' => [  'narangi', 'نارنگِي'  ]
             }
         }
     };
@@ -214,10 +225,10 @@ sub result_sd {
 
 sub result_es {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'es' => {
                 'language'     => 'Spanish',
-                'translations' => [ 'naranja','china']
+                'translations' => [ 'china', 'naranja']
             }
         }
     };
@@ -225,7 +236,7 @@ sub result_es {
 
 sub result_tet {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'tet' => {
                 'language'     => 'Tetum',
                 'translations' => [ 'sabraka' ]
@@ -236,7 +247,7 @@ sub result_tet {
 
 sub result_vi {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'vi' => {
                 'language'     => 'Vietnamese',
                 'translations' => [ 'cam', 'quả', 'trái' ]
@@ -247,10 +258,10 @@ sub result_vi {
 
 sub result_vi2 {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'vi' => {
                 'language'     => 'Vietnamese',
-                'translations' => [ 'da', 'màu', 'cam' ]
+                'translations' => [  'cam', 'da', 'màu' ]
             }
         }
     };
@@ -258,11 +269,11 @@ sub result_vi2 {
 
 sub result_sc {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'sc' => {
                 'language' => 'Sardinian',
                 'translations' =>
-                  [ 'colore de aranzu', 'ruggiu', 'ruiu', 'arrubiu' ]
+                  [ 'arrubiu', 'colore de aranzu', 'ruggiu', 'ruiu' ]
             }
         }
     };
@@ -271,10 +282,45 @@ sub result_sc {
 
 sub result_ga {
     return {
-        'fruit' => {
+        'test-word-sense' => {
             'ga' => {
                 'language'     => 'Irish',
-                'translations' => [ 'oráiste', 'dath oráiste' ]
+                'translations' => [ 'dath oráiste', 'oráiste' ]
+            }
+        }
+    };
+}
+
+sub result_arz2 {
+    return {
+        'test-word-sense' => {
+            'arz' => {
+                'language'     => 'Egyptian Arabic',
+                'translations' => [ 'kalb', 'كلب' ]
+            }
+        }
+    };
+}
+
+sub result_oj {
+    return {
+        'test-word-sense' => {
+            'oj' => {
+                'language' => 'Ojibwa',
+                'translations' =>
+                  [ 'animoshag', 'ᐊᓂᒧᔕᒃ', 'ᐊᓂᒧᔥ' ]
+            }
+        }
+    };
+}
+
+
+sub result_he {
+    return {
+        'test-word-sense' => {
+            'he' => {
+                'language'     => 'Hebrew',
+                'translations' => [ 'kalbtā’', 'כלבא', 'כלבתא' ]
             }
         }
     };

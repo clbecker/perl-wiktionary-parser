@@ -15,3 +15,9 @@ Revision history for Wiktionary::Parser
         Follow Wikisaurus links for synonyms, hyponyms, hypernyms, etc and include content from those pages.
         Provided method for downloading audio files for pronunciations
         Normalize language codes and provide consistent language names
+
+
+0.04    2012-07-XX
+        Added unit test for parsing a document
+        Added unit test for parsing translations
+        Refactors translation parser

@@ -471,17 +471,30 @@ sub get_translations {
 			my $translations = $word_sense->get_translations();
 
 			for my $language (keys %{$translations || {}}) {
+				my $language_code = $self->get_language_mapper()->language2code($language);
+				my $normalized_language = $self->get_language_mapper()->code2language($language_code);
+
 				my $lexemes = $translations->{$language};
 				my %seen;
 				for my $lexeme (@{$lexemes}) {
-					my $lex = $lexeme->get_lexeme();
-					next unless defined $lex;
-					unless (grep {$_ eq $lex} @{$translations{$word_sense_lexeme}{$language} || []}) {
-						push @{$translations{$word_sense_lexeme}{$language}},$lex;
+					my @translations = $lexeme->get_translations();
+
+					if ($lexeme->get_transliteration()) {
+						push @translations, $lexeme->get_transliteration();
+					}
+					if ($lexeme->get_alternate()) {
+						push @translations, $lexeme->get_alternate();
+					}
+
+					for my $lex (sort @translations) {
+						next unless defined $lex;
+						unless (grep {$_ eq $lex} @{$translations{$word_sense_lexeme}{$language_code}{translations} || []}) {
+							push @{$translations{$word_sense_lexeme}{$language_code}{translations}},$lex;
+							$translations{$word_sense_lexeme}{$language_code}{language} ||= $normalized_language;
+						}
 					}
 				}
 			}
-
 		}
 	}
 
@@ -582,6 +595,18 @@ sub get_language_links {
 sub get_categories {
 	my $self = shift;
 	return $self->{categories};
+}
+
+# get the languages represented by sections in this document
+sub get_section_languages {
+	my $self = shift;
+	my @languages;
+	# get top level sections
+	for my $number ($self->get_section_numbers()) {
+		next if $number =~ m/\./;
+		push @languages, $self->get_section(number => $number)->get_header();
+	}	
+	return \@languages;
 }
 
 1;

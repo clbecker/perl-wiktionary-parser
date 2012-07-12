@@ -5,13 +5,92 @@ use strict;
 use Data::Dumper;
 
 use Wiktionary::Parser;
-
+$\ = "\n";
 my $word = shift || 'orange';
 
 my $parser = Wiktionary::Parser->new();
 
 my $document = $parser->get_document(title => $word);
 
+{
+#	my $sub_document = $document->get_sub_document(title => 'pronunciation');
+#print Dumper $sub_document->get_pronunciations();
+#print Dumper $document->get_synonyms();
+print Dumper $document->get_parts_of_speech();
+
+#	print Dumper $sub_document->get_table_of_contents();
+	exit;
+}
+
+
+{
+	print Dumper $document->get_derived_terms();
+	exit;
+}
+
+
+exit;
+print "\nsynonyms\n";
+print Dumper $document->get_synonyms();
+print "\nhypernyms\n";
+print Dumper $document->get_hypernyms();
+print "\nhyponyms\n";
+print Dumper $document->get_hyponyms();
+
+
+exit;
+
+print Dumper $document->get_language_section(language => 'danish')->get_table_of_contents();
+
+print Dumper $document->get_language_section(language => 'danish')->get_parts_of_speech();
+
+print Dumper $document->get_language_section(language => 'danish')->get_pronunciations();
+
+
+exit;
+#print Dumper $document->get_table_of_contents();
+
+{
+	my $sections = $document->get_pronunciation_sections();
+
+	for my $sec (@$sections) {
+
+		my $audio_per_language = $sec->get_audio();
+		while (my ($lang,$audio_list) = each %{$audio_per_language || {}}) {
+			
+			for my $audio (@$audio_list) {
+				my $path = $audio->download_file(
+					directory => '/tmp/audio/',
+				);
+
+				print "Downloaded $path";
+
+			}
+		}
+	}
+}
+
+exit;
+
+
+exit;
+print Dumper $document->get_translations();
+print Dumper $document->get_word_senses();
+print Dumper $document->get_parts_of_speech();
+print "\nsynonyms\n";
+print Dumper $document->get_synonyms();
+print "\nhypernyms\n";
+print Dumper $document->get_hypernyms();
+print "\nhyponyms\n";
+print Dumper $document->get_hyponyms();
+print "\nantonyms\n";
+print Dumper $document->get_antonyms();
+
+print "\npronunciations\n";
+print Dumper $document->get_pronunciations();
+
+
+exit;
 {
 	my $sections = $document->get_sections_of_type('Wiktionary::Parser::Section::AlternativeForms');
 
@@ -57,20 +136,6 @@ for my $es ( @$etymology_sections ) {
 }
 exit;
 
-print Dumper $document->get_translations();
-print Dumper $document->get_word_senses();
-print Dumper $document->get_parts_of_speech();
-print "\nsynonyms\n";
-print Dumper $document->get_synonyms();
-print "\nhypernyms\n";
-print Dumper $document->get_hypernyms();
-print "\nhyponyms\n";
-print Dumper $document->get_hyponyms();
-print "\nantonyms\n";
-print Dumper $document->get_antonyms();
-
-print "\npronunciations\n";
-print Dumper $document->get_pronunciations();
 
 
 

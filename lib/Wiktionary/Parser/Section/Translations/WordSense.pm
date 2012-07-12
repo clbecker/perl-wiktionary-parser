@@ -38,20 +38,13 @@ sub add_lexeme {
 	my $self = shift;
 	my $lexeme = shift;
 	my $lang = $lexeme->get_language_name();
-
+	return unless $lang;
 	push @{$self->{languages}{$lang}}, $lexeme;
 }
 
 sub get_translations {
 	my $self = shift;
 	return $self->{languages};
-}
-
-sub add_extra {
-	my $self = shift;
-	if ($self->{_last_lexeme}) {
-		$self->{_last_lexeme}->add_extra(@_);
-	}
 }
 
 1;

@@ -34,6 +34,8 @@ sub _build_name_map {
 		'west frisian' => 'Western Frisian',
 		'romansch' => 'romansh',
 		'romanche' => 'romansh',
+		'mandarin' => 'Mandarin Chinese',
+		'ojibwe'   => 'Ojibwa',
 	);
 
 	my @all_names =  Locale::Codes::Language::all_language_names();
@@ -45,7 +47,6 @@ sub _build_name_map {
 		$sanitized_name =~ s/\s*\(.+$//;
 		$name_map{$sanitized_name} = $name;
 	}
-
 	
 	$NAME_MAP = \%name_map;
 }
@@ -67,7 +68,7 @@ sub get_sanitized_language_name {
 	my $self = shift;
 	my $name = lc shift;
 	my $unidecoded_name = Text::Unidecode::unidecode($name);
-	return $self->{name_map}{$unidecoded_name} || $unidecoded_name;
+	return $NAME_MAP->{$unidecoded_name} || $unidecoded_name;
 }
 
 # return the code for the given language
