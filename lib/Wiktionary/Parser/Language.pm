@@ -63,7 +63,7 @@ sub _build_name_map {
 sub custom_codes {
 	# http://en.wikipedia.org/wiki/Category:Languages_without_ISO_639-3_code_but_with_Linguist_List_code
 	return {
-		'jerriais'  => 'fra-jer',
+		'jerriais'  => 'roa-jer', # roa-jer in wiktionary, fra-jer in linguist list...
 		'tarantino' => 'roa-tar',
 		'elfdalian' => 'qer',
 		'cyrillic' => 'cyrl', # ISO 15924
