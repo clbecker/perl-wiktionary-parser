@@ -20,6 +20,11 @@ sub new {
 sub get_templates {
 	return [
 		{
+		 # e.g. {{trans-bottom}}
+		 pattern => qr/{{trans-bottom}}/,
+		 parser => sub { return { meta => 'end_word_sense' } }
+		},
+		{
 		 # comma - separates different blocks of words+metadata
 		 pattern => qr/[,;\.]/,
 		 parser => sub { return {meta => 'end_segment' } },
@@ -113,6 +118,7 @@ sub template_t {
 	my %meta;
 	$meta{language_code} = shift @parts;
 	my $translation = shift @parts;
+	$translation ||= '';
 	my @tokens = $translation =~ m/\[\[([^\]]+)\]\]/g;
 	$translation =~ s/\[\[([^\]]+)\]\]//g;
 	push @tokens, $translation; 
@@ -226,8 +232,14 @@ sub add_content {
 			next;
 		}
 
+		if ($meta->{meta} && $meta->{meta} eq 'end_word_sense') {
+			$self->set_current_word_sense(undef);
+		}
+
 		if ($meta->{meta} && $meta->{meta} eq 'end_segment') {
-			$self->get_current_word_sense()->add_lexeme($lexeme);
+			if ($self->get_current_word_sense()) {
+				$self->get_current_word_sense()->add_lexeme($lexeme);
+			}
 			my $_lexeme = Wiktionary::Parser::Section::Translations::WordSense::Lexeme->new();
 		}
 

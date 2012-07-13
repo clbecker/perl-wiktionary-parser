@@ -471,6 +471,7 @@ sub get_translations {
 			my $translations = $word_sense->get_translations();
 
 			for my $language (keys %{$translations || {}}) {
+
 				my $language_code = $self->get_language_mapper()->language2code($language);
 				my $normalized_language = $self->get_language_mapper()->code2language($language_code);
 
@@ -478,6 +479,14 @@ sub get_translations {
 				my %seen;
 				for my $lexeme (@{$lexemes}) {
 					my @translations = $lexeme->get_translations();
+
+					# if the lexeme has a language code, use that to determine language
+					my $tagged_language_code = $lexeme->get_language_code();
+					if ($tagged_language_code) {
+						$normalized_language = $self->get_language_mapper()->code2language($tagged_language_code) || $normalized_language;
+						$language_code = $self->get_language_mapper()->language2code($normalized_language) || $tagged_language_code;
+
+					}
 
 					if ($lexeme->get_transliteration()) {
 						push @translations, $lexeme->get_transliteration();

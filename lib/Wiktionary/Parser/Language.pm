@@ -26,6 +26,7 @@ sub _build_name_map {
 	return if $NAME_MAP;
 
 	# other language name variations used on wiktionary.
+	# mapped to language names used in Locale::Codes::Language
 	my %name_map = (
 		'min nan'  => 'Min Nan Chinese',
 		'slovene'  => 'Slovenian',
@@ -36,7 +37,13 @@ sub _build_name_map {
 		'romanche' => 'romansh',
 		'mandarin' => 'Mandarin Chinese',
 		'ojibwe'   => 'Ojibwa',
-	);
+		'khmer'    => 'Central Khmer',
+		'tuvan'    => 'Tuvinian',
+		'sotho'    => 'Southern Sotho',
+		'buryat'   => 'Buriat',
+		'azeri'    => 'Azerbaijani',
+		'taos'     => 'Northern Tiwa',
+ 	);
 
 	my @all_names =  Locale::Codes::Language::all_language_names();
 	my @all_names_3 = Locale::Codes::Language::all_language_names(Locale::Codes::Language::LOCALE_LANG_ALPHA_3);
@@ -59,7 +66,7 @@ sub custom_codes {
 		'jerriais'  => 'fra-jer',
 		'tarantino' => 'roa-tar',
 		'elfdalian' => 'qer',
-
+		'cyrillic' => 'cyrl', # ISO 15924
 		'translingual' => 'translingual',
 	};
 }
@@ -68,7 +75,7 @@ sub get_sanitized_language_name {
 	my $self = shift;
 	my $name = lc shift;
 	my $unidecoded_name = Text::Unidecode::unidecode($name);
-	return $NAME_MAP->{$unidecoded_name} || $unidecoded_name;
+	return $unidecoded_name;
 }
 
 # return the code for the given language
@@ -84,7 +91,23 @@ sub language2code {
 	return $code if $code;
 
 	$code = Locale::Codes::Language::language2code(
+		$NAME_MAP->{$language_name},
+		Locale::Codes::Language::LOCALE_LANG_ALPHA_2,
+	);
+
+
+
+	return $code if $code;
+
+	$code = Locale::Codes::Language::language2code(
 		$language_name,
+		Locale::Codes::Language::LOCALE_LANG_ALPHA_3,
+	);
+
+	return $code if $code;
+
+	$code = Locale::Codes::Language::language2code(
+		$NAME_MAP->{$language_name},
 		Locale::Codes::Language::LOCALE_LANG_ALPHA_3,
 	);
 
