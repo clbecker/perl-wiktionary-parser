@@ -20,4 +20,10 @@ Revision history for Wiktionary::Parser
 0.04    2012-07-11
         Added unit test for parsing a document
         Added unit test for parsing translations
-        Refactors translation parser
+        Refactored translation parser
+
+
+0.05    2012-07-14
+        updated documentation
+        Added example scripts in /bin       
+        Various bugfixes
