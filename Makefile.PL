@@ -17,6 +17,7 @@ WriteMakefile(
 		'Locale::Codes::Language' => 0,
 		'Text::Unidecode' => 0,
 		'Carp::Always' => 0,
+		'File::Path' => 0,
 	},
 	META_MERGE => {
 		resources => {
