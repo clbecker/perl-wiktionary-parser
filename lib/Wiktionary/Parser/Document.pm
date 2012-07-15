@@ -56,7 +56,12 @@ sub add_section {
 			ref($section)
 		);
 	}
-	# TODO: index sections by other attributes?
+
+	# link section to document
+	unless ($section->get_document()) {
+		$section->set_document($self);
+	}
+
 
 	my $section_number = $section->get_section_number();
 	$self->{sections}{$section_number} = $section;
