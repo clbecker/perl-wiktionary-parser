@@ -1,8 +1,5 @@
 package Wiktionary::Parser::Section::Translations;
 
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section;
 use Wiktionary::Parser::Section::Translations::WordSense;
 use Wiktionary::Parser::Section::Translations::WordSense::Lexeme;
@@ -290,6 +287,13 @@ sub add_word_sense {
 	my $sense = $word_sense->get_word();
 	$self->{word_senses}{$sense} = $word_sense;
 }
+
+sub get_word_sense {
+	my $self = shift;
+	my $sense = shift;
+	return $self->{word_senses}{$sense};
+}
+
 
 sub get_word_senses {
 	my $self = shift;

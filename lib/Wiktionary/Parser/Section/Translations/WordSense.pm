@@ -1,8 +1,5 @@
 package Wiktionary::Parser::Section::Translations::WordSense;
 
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section::Translations::WordSense::Lexeme;
 
 sub new {

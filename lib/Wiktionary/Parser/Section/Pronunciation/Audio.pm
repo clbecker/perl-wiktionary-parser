@@ -1,9 +1,5 @@
 package Wiktionary::Parser::Section::Pronunciation::Audio;
 
-use strict;
-use warnings;
-use Data::Dumper;
-
 use MediaWiki::API;
 use File::Path;
 
@@ -58,7 +54,7 @@ sub download_file {
 
 	# create local directory if it doesn't exist
 	unless (-e $directory) {
-		File::Path::mkpath($directory);
+		File::Path::make_path($directory);
 	}
 
 	# also verify directory is writable

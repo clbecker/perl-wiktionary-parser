@@ -1,9 +1,5 @@
 package Wiktionary::Parser::Section::Pronunciation::Representation;
 
-use strict;
-use warnings;
-use Data::Dumper;
-
 # keys:
 #  representation: IPA, SAMPA, prUS
 #  pronunciation: string representing pronunciation in the given representation format

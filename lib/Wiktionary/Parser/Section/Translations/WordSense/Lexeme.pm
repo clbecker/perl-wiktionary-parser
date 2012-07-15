@@ -1,22 +1,8 @@
 package Wiktionary::Parser::Section::Translations::WordSense::Lexeme;
 
-use strict;
-use warnings;
-use Data::Dumper;
-
 sub new {
 	my $class = shift;
 	my %args = @_;
-
-	# fields
-	# language_code
-	# language_name
-	# lexeme
-	# extra
-
-	#die 'language_code is not defined' unless defined $args{language_code};
-	#die 'lexeme is not defined' unless defined $args{lexeme};
-
 	my $self = bless \%args, $class;
 	return $self;
 }

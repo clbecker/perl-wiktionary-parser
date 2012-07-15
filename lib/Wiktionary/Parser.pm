@@ -3,9 +3,6 @@ package Wiktionary::Parser;
 use strict;
 use warnings;
 use Data::Dumper;
-use LWP;
-use JSON::XS qw(decode_json);
-use Encode qw(decode encode);
 
 use MediaWiki::API;
 use Wiktionary::Parser::Document;
@@ -159,8 +156,216 @@ sub get_mediawiki_client {
 
 1;
 
-=pod
+=pod 
 
-=head1 Wiktionary::Parser
+=head1 Name
+
+Wiktionary::Parser - Client and Parser of content from the Wiktionary API
+
+=head1 Synopsis
+
+This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.php) for documents by title.  It parses the resulting MediaWiki document and provides access to data structures containing word senses, translations, synonyms, parts of speech, etc.  It also provides access to the raw content of each MediaWiki section should you wish to extract other data on your own, or build on top of this package.  
+
+=head1 Usage
+
+	my $parser = Wiktionary::Parser->new();
+	
+	my $document = $parser->get_document(title => 'bunny');
+	
+	my $translation_hashref     = $document->get_translations();
+	my $word_sense_hashref      = $document->get_word_senses();
+	my $parts_of_speech_hashref = $document->get_parts_of_speech();
+	my $pronunciations_hashref  = $document->get_pronunciations();
+     my $synonyms_hashref        = $document->get_synonyms();
+     my $hyponyms_hashref        = $document->get_hyponyms();
+     my $hypernyms_hashref       = $document->get_hypernyms();
+     my $antonyms_hashref        = $document->get_antonyms();
+     my $derived_terms_hashref   = $document->get_derived_terms();
+
+	my $section_hashref = $document->get_sections();
+	my $sub_document = $document->get_sub_document(title => 'string or regex');
+	my $table_of_contents_arrayref = $document->get_table_of_contents();
+
+
+
+=head2 Methods for Wiktionary::Parser
+
+=over
+
+=item B<new>
+
+The constructor doesn't require any arguments.  A wiktionary_url may be specified, although this package has currently only been tested and verified to work on en.wiktionary.org/w/api.php
+
+	# Optional Args:
+	my $parser = Wiktionary::Parser->new(
+		wiktionary_url => '...' # optional 
+	);
+
+=item B<get_document> (title => TITLE)
+
+Returns a Wiktionary::Parser::Document object
+
+	my $document = $parser->get_document(title => 'orange');
+
+=back
+
+=head2 Methods for Wiktionary::Parser::Document
+
+See https://github.com/clbecker/perl-wiktionary-parser/wiki for details and examples on methods for the Wiktionary::Parser::Document object.
+
+=over
+
+=item B<get_translations>
+
+Returns a hashref mapping word sense to language to translated words
+
+
+	my $translations = $document_get_translations();
+	
+
+=item B<get_word_senses>
+
+Returns an arrayref containing a list of word senses
+
+
+	my $word_senses = $document->get_word_senses();
+	
+
+=item B<get_parts_of_speech>
+
+Returns a hashref mapping language to a list of parts of speech.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/Parts-of-speech for details.  
+
+
+	my $parts_of_speech = $document->get_parts_of_speech();
+	
+
+=item B<get_pronunciations>
+
+Returns a hashref mapping language to a pronunciation metadata.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/pronunciations for details.  
+
+	my $pronunciations = $document->get_pronunciations();
+
+
+=item B<get_synonyms>
+
+Returns a hashref mapping language and word sense to a list of synonyms
+
+     my $synonyms = $document->get_synonyms();
+
+=item B<get_hyponyms>
+
+Returns a hashref mapping language and word sense to a list of hyponyms
+
+     my $hyponyms = $document->get_hyponyms();
+
+
+=item B<get_hypernyms>
+
+Returns a hashref mapping language and word sense to a list of hypernyms
+
+     my $hypernyms = $document->get_hypernyms();
+
+
+=item B<get_antonyms>
+
+Returns a hashref mapping language and word sense to a list of antonyms
+
+     my $antonyms = $document->get_antonyms();
+
+
+=item B<get_derived_terms>
+
+Returns a hashref mapping language to a list word derived terms / phrases
+
+     my $derived_words = $document->get_derived_words();
+
+
+=item B<get_sections>
+
+Returns a hashref of Wiktionary::Parser::Section objects.  These provide access to the data for each section of the document.
+The format of the hash is { $section_number => object }  e.g. {'1.2.1' => $obj}
+
+
+=item B<get_table_of_contents>
+
+Returns an arrayref containing section numbers and names.  Mostly helpful for informational / debugging purposes when you need a summary of what's in your document object.
+
+
+
+=item B<get_section(number => SECTION_NUMBER)>
+
+Given the section number, returns the corresponding Wiktionary::Parser::Section object.  Numbers correspond to the those in the table of contents shown on a mediawiki page.  
+
+     my $section = $document->get_section(number => '1.2');
+
+=item B<get_sections(title => STRING_OR_REGEX)>
+
+Given a string or regular expression, this will return an array of Section objects containing any sections that match the given title pattern.  
+
+     # returns a list containing section(s) with 'english' in the title (case insensitive)	 
+     my $sections = $document->get_sections(title => 'english');
+
+	# returns all sections with matching titles
+     my $sections = $document->get_sections(title => 'etymology|pronunciation|synonyms');
+
+
+=item B<get_sub_document(title => STRING_OR_REGEX)>
+
+Given a string or regular expression, this will return a Wiktionary::Parser::Document object consisting of just the matching sections, and their child sections.  This can be used if you're just interested in certain parts of a document.
+
+     # this returns a document containing just the 'English' section of the main document.
+     my $sub_document = $document->get_sub_document(title => 'english');
+
+     # To verify what sections you have, you can print out the table of contents for this sub document.  
+	use Data::Dumper;
+     print Dumper $sub_document->get_table_of_contents();
+
+
+=item B<get_title>
+
+Return the document title (i.e. the word you used to retrieve the document from the parser)
+
+=back
+
+=head2 Methods for Wiktionary::Parser::Section
+
+=over
+
+=item B<get_content>
+
+Returns an arrayref containing lines of text from the section of the document
+
+=item B<get_header>
+
+Returns the section heading name
+
+=item B<get_section_number>
+
+Returns the number of this section (e.g. 1.2.1)
+
+=item B<get_parent_section>
+
+Return the Wiktionary::Parser::Section instane of the parent section.  e.g. if you call this on section 1.2.1, it'll return the object for section 1.2
+
+=item B<get_language>
+
+For whatever section you are currently on,  this returns the language of the top level section this is under.  e.g. if the section instance you have represents the "Synonyms" section of the document under the French section, then this will return French as the language.  
+
+
+=item B<get_ancestor_sections>
+
+Return an arrayref containing all sections above this one in the hierarchy.  
+
+
+=item B<get_child_document>
+
+This returns a Wiktionary::Parser::Document object containing the current section and all its child sections.  
+
+
+=item B<get_child_sections>
+
+Returns an array of all sections below this one in the hierarchy
+
+=back
 
 =cut

@@ -1,9 +1,5 @@
 package Wiktionary::Parser::Section::WikisaurusSection;
 
-
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section;
 use Wiktionary::Parser::TemplateParser;
 

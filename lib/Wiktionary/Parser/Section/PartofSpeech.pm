@@ -1,8 +1,5 @@
 package Wiktionary::Parser::Section::PartofSpeech;
 
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section;
 
 use base qw(Wiktionary::Parser::Section);

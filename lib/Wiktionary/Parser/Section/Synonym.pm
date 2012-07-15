@@ -1,8 +1,5 @@
 package Wiktionary::Parser::Section::Synonym;
 
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section::Classifications;
 
 use base qw(Wiktionary::Parser::Section::Classifications);

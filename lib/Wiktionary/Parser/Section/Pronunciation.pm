@@ -1,8 +1,5 @@
 package Wiktionary::Parser::Section::Pronunciation;
 
-use strict;
-use warnings;
-use Data::Dumper;
 use Wiktionary::Parser::Section;
 use Wiktionary::Parser::Section::Pronunciation::Audio;
 use Wiktionary::Parser::Section::Pronunciation::Representation;
