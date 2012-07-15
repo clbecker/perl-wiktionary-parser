@@ -108,6 +108,29 @@ sub _get_parent_language_section {
 	return $self;
 }
 
+sub _get_parent_part_of_speech_section {
+	my $self = shift;
+
+	# if the current section is a part of speech section, return self
+	if ($self->get_document()->is_part_of_speech( $self->get_header() )) {
+		return $self;
+	}
+
+	# otherwise look through parent sections for a match
+	my $sections = $self->get_ancestor_sections();
+	if ($sections && @$sections) {
+		for my $section (@$sections) {
+			next unless 
+			    $self->get_document()->is_part_of_speech(
+					$section->get_header()
+				);
+			return $section;
+		}
+	}
+	return;
+
+}
+
 # get all parent sections up to the top level
 sub get_ancestor_sections {
 	my $self = shift;
@@ -130,6 +153,19 @@ sub get_language {
 	my $lang = Wiktionary::Parser::Language->new();
 	my $code = $lang->language2code($language_name);
 	return $code;
+}
+
+# get the part of speech of the current section based on the part of speech section above this in the hierarchy
+sub get_part_of_speech {
+	my $self = shift;
+	if ($self->{__part_of_speech__}) {
+		return $self->{__part_of_speech__};
+	}
+	my $parent = $self->_get_parent_part_of_speech_section();
+	return unless $parent;
+
+	$self->{__part_of_speech__} = $parent->get_header();
+	return $self->{__part_of_speech__};
 }
 
 sub get_template_parser {

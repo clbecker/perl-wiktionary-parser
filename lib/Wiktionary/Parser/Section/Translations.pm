@@ -36,6 +36,13 @@ sub get_templates {
 		 pattern => qr/{{trans-top\|([^}]+)/,
 		 parser => sub { return { word_sense => $_[-1] } }
 		},
+
+		{
+		 # e.g. {{trans-see|apples and pears (''Cockney rhyming slang'')|apples and pears}}
+		 pattern => qr/{{trans-see\|([^}]+)}}/,
+		 parser  =>\&template_trans_see,
+		},
+
 		{
 		 # e.g. {{tø|arz|برتقان|tr=burtuʕaan|sc=Arab|xs=Egyptian Arabic}}
 		 pattern => qr/{{t[^\|]*\|([^}]+)}}/,
@@ -106,6 +113,54 @@ sub template_language {
 	my $language = shift;
 	$self->clean_tokens($language);
 	return { language => $language } 
+}
+
+# parse the trans-see template into its parts
+# http://en.wiktionary.org/wiki/Template:trans-see
+sub template_trans_see {
+	my $self = shift;
+	my ($title) = shift;
+	
+	my @params = split(/\|/,$title);
+
+	# {{trans-see|that}}
+	if ($params[0] && scalar @params == 1) {
+		return {
+			word_sense => "wiktionary:$params[0]",
+			meta       => 'wiktionary_link',
+		}
+	} 
+
+	# {{trans-see|rally|[[rally#Etymology 2|rally]]}}
+	if (my $link_meta = $params[1] =~ m/\[\[([^\]]+)\]\]/) {
+		my @link_params = split(/\|/, $link_meta);
+		my $link;
+		# grab the last value if there's more than one entry
+		if (scalar @link_params > 1) {
+			$link = $link_params[-1];
+		} else {
+			$link = shift @link_params;
+		}
+
+		$link =~ s/\#.+$//;
+
+		return {
+			word_sense => "wiktionary:$link",
+			meta       => 'wiktionary_link',
+		}
+	}
+
+	# {{trans-see|Nahuatl language|Nahuatl}}
+	if ($params[1]) {
+		my $link = $params[1];
+		$link =~ s/\#.+$//;
+		return {
+			word_sense => "wiktionary:$link",
+			meta       => 'wiktionary_link',
+		}
+	}
+
+	return;
 }
 
 sub template_t {
@@ -239,6 +294,7 @@ sub add_content {
 			}
 			my $_lexeme = Wiktionary::Parser::Section::Translations::WordSense::Lexeme->new();
 		}
+
 
 		$lexeme->add_translations(@{$meta->{translations} || []}) if ($meta->{translations});
 		$lexeme->set_gender($meta->{gender}) if ($meta->{gender});

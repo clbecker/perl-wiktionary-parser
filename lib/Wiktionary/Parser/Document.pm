@@ -251,12 +251,34 @@ sub get_section_numbers {
 
 sub get_word_senses {
 	my $self = shift;
+	my %args = @_;
+
+	# follow links to other wiktionary pages
+	my $_meta_follow_links = defined($args{_meta_follow_links}) ? $args{_meta_follow_links} : 1;
+
+
 	my $sections = $self->get_translation_sections();
 	my @word_senses;
 	for my $section (@{$sections || []}) {
 		my $word_senses = $section->get_word_senses();
 
 		for my $word_sense (@{$word_senses || []}) {
+
+			if (my ($title) = $word_sense->get_word() =~ m/^wiktionary\:(.+)$/i) {
+				if ($_meta_follow_links) {
+					# get titles to linked pages
+					# get translations from the linked document 
+					my $linked_document = $self->get_parser()->get_document(title => $title);
+					# set _meta_follow_links to 0, to ensure we don't end up in 
+					# an endless loop if pages link back to each other
+					my $linked_word_senses = $linked_document->get_word_senses(_meta_follow_links => 0);
+					push @word_senses, @{$linked_word_senses};
+				}
+
+				next;
+			}
+
+
 			push @word_senses, $word_sense->get_word();
 		}
 	}
@@ -455,6 +477,11 @@ sub get_parts_of_speech {
 
 sub get_translations {
 	my $self = shift;
+	my %args = @_;
+
+	# follow links to other wiktionary pages
+	my $_meta_follow_links = defined($args{_meta_follow_links}) ? $args{_meta_follow_links} : 1;
+
 
 	if ($self->{__get_translations__}) {
 		return $self->{__get_translations__};
@@ -463,12 +490,38 @@ sub get_translations {
 	my $sections = $self->get_translation_sections();
 	my @word_senses;
 	my %translations;
+
 	for my $section (@{$sections || []}) {
 		my $word_senses = $section->get_word_senses();
 
 		for my $word_sense (@{$word_senses || []}) {
 			my $word_sense_lexeme = $word_sense->get_word();
 			my $translations = $word_sense->get_translations();
+
+			# if we have a link to another page, download that page and merge its translation data
+			if (my ($title) = $word_sense->get_word() =~ m/^wiktionary\:(.+)$/i) {
+				
+				if ($_meta_follow_links) {
+					# get titles to linked pages
+					# get translations from the linked document 
+
+					my $linked_document = $self->get_parser()->get_document(title => $title);
+					# set _meta_follow_links to 0, to ensure we don't end up in 
+					# an endless loop if pages link back to each other
+					my $linked_translations = $linked_document->get_translations(_meta_follow_links => 0);
+					
+					for my $linked_word_sense (keys %$linked_translations) {
+						for my $linked_lang_code (keys %{ $linked_translations->{$linked_word_sense} || {} }) {
+							$translations{$linked_word_sense}{$linked_lang_code}{language} = $linked_translations->{$linked_word_sense}{$linked_lang_code}{language};
+							push @{ $translations{$linked_word_sense}{$linked_lang_code}{translations} }, @{ $linked_translations->{$linked_word_sense}{$linked_lang_code}{translations} || []};
+						}
+					}
+				}
+
+				next;
+			}
+
+
 
 			for my $language (keys %{$translations || {}}) {
 
@@ -485,8 +538,11 @@ sub get_translations {
 					if ($tagged_language_code) {
 						$normalized_language = $self->get_language_mapper()->code2language($tagged_language_code) || $normalized_language;
 						$language_code = $self->get_language_mapper()->language2code($normalized_language) || $tagged_language_code;
-
 					}
+
+
+					my $part_of_speech = $section->get_part_of_speech();
+					
 
 					if ($lexeme->get_transliteration()) {
 						push @translations, $lexeme->get_transliteration();
@@ -496,10 +552,13 @@ sub get_translations {
 					}
 
 					for my $lex (sort @translations) {
+
 						next unless defined $lex;
 						unless (grep {$_ eq $lex} @{$translations{$word_sense_lexeme}{$language_code}{translations} || []}) {
 							push @{$translations{$word_sense_lexeme}{$language_code}{translations}},$lex;
 							$translations{$word_sense_lexeme}{$language_code}{language} ||= $normalized_language;
+							$translations{$word_sense_lexeme}{$language_code}{part_of_speech} ||= $part_of_speech;
+
 						}
 					}
 				}

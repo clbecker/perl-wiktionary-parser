@@ -27,3 +27,9 @@ Revision history for Wiktionary::Parser
         updated documentation
         Added example scripts in /bin       
         Various bugfixes
+
+
+0.06    2012-07-14
+        Added part of speech info to output of get_translations()
+        Included translations from other wiktionary pages linked to the original one
+	   
