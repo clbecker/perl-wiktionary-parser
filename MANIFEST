@@ -14,7 +14,6 @@ lib/Wiktionary/Parser/Section/WikisaurusSection.pm
 lib/Wiktionary/Parser/Section/Antonym.pm
 lib/Wiktionary/Parser/Section/DerivedTerms.pm
 lib/Wiktionary/Parser/Section/Hyponym.pm
-lib/Wiktionary/Parser/Section/Translations.pm.old
 lib/Wiktionary/Parser/Section/Pronunciation/Audio.pm
 lib/Wiktionary/Parser/Section/Pronunciation/Representation.pm
 lib/Wiktionary/Parser/Section/Classifications.pm
