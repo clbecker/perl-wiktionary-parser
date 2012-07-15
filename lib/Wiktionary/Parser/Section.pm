@@ -55,6 +55,13 @@ sub get_document {
 	return $self->{document};
 }
 
+sub set_document {
+       my $self = shift;
+       my $doc = shift;
+       return $self->{document} = $doc;
+}
+
+
 # return the parent section
 # e.g. if this is section 1.2.1
 # return section 1.2

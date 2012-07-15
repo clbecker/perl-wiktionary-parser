@@ -93,8 +93,14 @@ my @lines = (
 );
 
 for my $hr (@lines) {
-	my $section = Wiktionary::Parser::Section::Translations->new(
+	my $pos_section = Wiktionary::Parser::Section::Translations->new(
 		section_number => '1.1',
+		header => 'noun',
+	);
+
+
+	my $section = Wiktionary::Parser::Section::Translations->new(
+		section_number => '1.1.1',
 		header => 'translations',
 	);
 
@@ -103,7 +109,7 @@ for my $hr (@lines) {
 	}
 
 	my $document = Wiktionary::Parser::Document->new(
-		sections => [$section],
+		sections => [$section,$pos_section],
 	);
 
 	unless(is_deeply(
@@ -122,6 +128,7 @@ sub result_sv {
     return {
         'test-word-sense' => {
             'sv' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Swedish',
                 'translations' => [ 'apelsin' ]
             }
@@ -133,6 +140,7 @@ sub result_fa {
     return {
         'test-word-sense' => {
             'fa' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Persian',
                 'translations' => [ 'porteghâl', 'نارنج', 'پرتقال' ]
             }
@@ -144,6 +152,7 @@ sub result_sl {
     return {
         'test-word-sense' => {
             'sl' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Slovenian',
                 'translations' => ['oranževec'],
             }
@@ -155,6 +164,7 @@ sub result_ar {
     return {
         'test-word-sense' => {
             'ar' => {
+                'part_of_speech' => 'noun',
                 'language' => 'Arabic',
                 'translations' => ['burtuqaal', 'برتقال' , 'برتقالة' ]
             }
@@ -166,6 +176,7 @@ sub result_arz {
     return {
         'test-word-sense' => {
             'arz' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Egyptian Arabic',
                 'translations' => ['burtuʕaan', 'برتقان' ]
             }
@@ -181,6 +192,7 @@ sub result_cmn {
     return {
         'test-word-sense' => {
             'cmn' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Mandarin Chinese',
                 'translations' => ['júzi',
                      '桔子','橘子', '橙', '橙子',
@@ -194,6 +206,7 @@ sub result_ku {
     return {
         'test-word-sense' => {
             'ku' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Kurdish',
                 'translations' => [ 'pirteqal', 'پرته‌قاڵ' ]
             }
@@ -205,6 +218,7 @@ sub result_gd {
     return {
         'test-word-sense' => {
             'gd' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Gaelic',
                 'translations' => [ 'oraindsear', 'òr-mheas' ]
             }
@@ -216,6 +230,7 @@ sub result_sd {
     return {
         'test-word-sense' => {
             'sd' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Sindhi',
                 'translations' => [  'narangi', 'نارنگِي'  ]
             }
@@ -227,6 +242,7 @@ sub result_es {
     return {
         'test-word-sense' => {
             'es' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Spanish',
                 'translations' => [ 'china', 'naranja']
             }
@@ -238,6 +254,7 @@ sub result_tet {
     return {
         'test-word-sense' => {
             'tet' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Tetum',
                 'translations' => [ 'sabraka' ]
             }
@@ -249,6 +266,7 @@ sub result_vi {
     return {
         'test-word-sense' => {
             'vi' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Vietnamese',
                 'translations' => [ 'cam', 'quả', 'trái' ]
             }
@@ -260,6 +278,7 @@ sub result_vi2 {
     return {
         'test-word-sense' => {
             'vi' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Vietnamese',
                 'translations' => [  'cam', 'da', 'màu' ]
             }
@@ -271,6 +290,7 @@ sub result_sc {
     return {
         'test-word-sense' => {
             'sc' => {
+                'part_of_speech' => 'noun',
                 'language' => 'Sardinian',
                 'translations' =>
                   [ 'arrubiu', 'colore de aranzu', 'ruggiu', 'ruiu' ]
@@ -284,6 +304,7 @@ sub result_ga {
     return {
         'test-word-sense' => {
             'ga' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Irish',
                 'translations' => [ 'dath oráiste', 'oráiste' ]
             }
@@ -295,6 +316,7 @@ sub result_arz2 {
     return {
         'test-word-sense' => {
             'arz' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Egyptian Arabic',
                 'translations' => [ 'kalb', 'كلب' ]
             }
@@ -306,6 +328,7 @@ sub result_oj {
     return {
         'test-word-sense' => {
             'oj' => {
+                'part_of_speech' => 'noun',
                 'language' => 'Ojibwa',
                 'translations' =>
                   [ 'animoshag', 'ᐊᓂᒧᔕᒃ', 'ᐊᓂᒧᔥ' ]
@@ -319,6 +342,7 @@ sub result_he {
     return {
         'test-word-sense' => {
             'he' => {
+                'part_of_speech' => 'noun',
                 'language'     => 'Hebrew',
                 'translations' => [ 'kalbtā’', 'כלבא', 'כלבתא' ]
             }
