@@ -33,3 +33,6 @@ Revision history for Wiktionary::Parser
         Added part of speech info to output of get_translations()
         Included translations from other wiktionary pages linked to the original one
 	   
+
+0.07    2012-07-15
+        Updates to documentation and example scripts
