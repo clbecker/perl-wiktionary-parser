@@ -46,7 +46,7 @@ Create an instance of the Wiktionary::Parser.  This object is used to contact th
 
 Contacts the wiktionary API, and downloads the page with the given title.  It then parses the content and returns a Wiktionary::Parser::Document object that you can call further methods on.  
 
-	my $document = $parser->get_document(title => 'orange');
+     my $document = $parser->get_document(title => 'orange');
 
 =back
 
@@ -88,20 +88,20 @@ Returns a reference to a hash mapping language to a list of parts of speech.  Se
      
      $VAR1 = {
           'en' => {
-                  'language' => 'English',
-                  'part_of_speech' => [
-                                        'noun',
-                                        'adj',
-                                        'verb'
-                                      ]
-                },
+               'language' => 'English',
+               'part_of_speech' => [
+                    'noun',
+                    'adj',
+                    'verb'
+                ]
+          },
           'sv' => {
-                    'language' => 'Swedish',
-                    'part_of_speech' => [
-                                          'adjective',
-                                          'noun'
-                                        ]
-                  },
+               'language' => 'Swedish',
+               'part_of_speech' => [
+                    'adjective',
+                    'noun'
+               ]
+          },
           ...
      }
 
@@ -154,7 +154,7 @@ Returns a reference to a hash mapping word sense to language to translated words
 Returns an arrayref containing a list of word senses
 
 
-	my $word_senses = $document->get_word_senses();
+     my $word_senses = $document->get_word_senses();
      	
      print Dumper $word_senses;
      
@@ -209,7 +209,7 @@ Returns a reference to a hash mapping language and word sense to a list of anton
 
 
 
-=item B<get_section(number => SECTION_NUMBER)>
+=item B<get_section> (number => SECTION_NUMBER)
 
 Given the section number, returns the corresponding Wiktionary::Parser::Section object.  Numbers correspond to the those in the table of contents shown on a mediawiki page.  
 
@@ -224,10 +224,15 @@ The format of the hash is { $section_number => object }  e.g. {'1.2.1' => $obj}
 
 Given a string or regular expression, this will return an array of Section objects containing any sections that match the given title pattern.  
 
-     # returns a list containing section(s) with 'english' in the title (case insensitive)	 
+This returns a list containing section(s) with 'english' in the title (case insensitive)	 In most cases this will just return the 'English' section, in some cases you'll also get the 'Old English' section too.
+
      my $sections = $document->get_sections(title => 'english');
 
-	# returns all sections with matching titles
+If you want to get only the "English" section, use this pattern:
+
+     my $sections = $document->get_sections(title => '^english$');
+
+This returns an array of all etymology, pronunciation, and synonym sections
      my $sections = $document->get_sections(title => 'etymology|pronunciation|synonyms');
 
 
@@ -235,14 +240,17 @@ Given a string or regular expression, this will return an array of Section objec
 
 Given a string or regular expression, this will return a Wiktionary::Parser::Document object consisting of just the matching sections, and their child sections.  This can be used if you're just interested in certain parts of a document.
 
-     # this returns a document containing just the 'English' section of the main document.
+
+This returns a document object containing just the sections with 'english' in the title (case insensitive).  In most cases this will just return the 'English' section, in some cases you'll also get the 'Old English' section too.
+
      my $sub_document = $document->get_sub_document(title => 'english');
 
+If you want to get only the "English" section, use this pattern:
+
+     my $sub_document = $document->get_sub_document(title => '^english$');
+
      # To verify what sections you have, you can print out the table of contents for this sub document.  
-	use Data::Dumper;
      print Dumper $sub_document->get_table_of_contents();
-
-
 
 
 =item B<get_part_of_speech_sections>
@@ -250,7 +258,8 @@ Given a string or regular expression, this will return a Wiktionary::Parser::Doc
 Returns an array of Wiktionary::Parser::Section objects representating all the sections on the page that cover a part of speech. This current includes all sections that match the following header:
 
 
-     Part of Speech sections
+     Parts of Speech used in Wiktionary include:
+     
      	noun
      	verb
      	adjective
