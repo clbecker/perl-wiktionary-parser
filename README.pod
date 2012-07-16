@@ -36,12 +36,10 @@ The repository for this package is available on github at https://github.com/clb
 
 =item B<new>
 
-The constructor doesn't require any arguments.  A wiktionary_url may be specified, although this package has currently only been tested and verified to work on en.wiktionary.org/w/api.php
+Create an instance of the Wiktionary::Parser.  This object is used to contact the Wiktionary API, and parse the results.  
 
-	# Optional Args:
-	my $parser = Wiktionary::Parser->new(
-		wiktionary_url => '...' # optional 
-	);
+     my $parser = Wiktionary::Parser->new();
+
 
 =item B<get_document> (title => TITLE)
 
@@ -51,11 +49,32 @@ Contacts the wiktionary API, and downloads the page with the given title.  It th
 
 =back
 
+
 =head2 Methods for Wiktionary::Parser::Document
 
 See https://github.com/clbecker/perl-wiktionary-parser/wiki for details and examples on methods for the Wiktionary::Parser::Document object.
 
 =over
+
+
+=item B<get_derived_terms>
+
+Returns a hashref mapping language to a list word derived terms / phrases
+
+     my $derived_words = $document->get_derived_words();
+
+=item B<get_parts_of_speech>
+
+Returns a hashref mapping language to a list of parts of speech.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/Parts-of-speech for details.  
+
+
+	my $parts_of_speech = $document->get_parts_of_speech();
+
+=item B<get_pronunciations>
+
+Returns a hashref mapping language to a pronunciation metadata.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/pronunciations for details.  
+
+	my $pronunciations = $document->get_pronunciations();
 
 =item B<get_translations>
 
@@ -64,7 +83,6 @@ Returns a hashref mapping word sense to language to translated words
 
 	my $translations = $document_get_translations();
 	
-
 =item B<get_word_senses>
 
 Returns an arrayref containing a list of word senses
@@ -72,20 +90,6 @@ Returns an arrayref containing a list of word senses
 
 	my $word_senses = $document->get_word_senses();
 	
-
-=item B<get_parts_of_speech>
-
-Returns a hashref mapping language to a list of parts of speech.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/Parts-of-speech for details.  
-
-
-	my $parts_of_speech = $document->get_parts_of_speech();
-	
-
-=item B<get_pronunciations>
-
-Returns a hashref mapping language to a pronunciation metadata.  See https://github.com/clbecker/perl-wiktionary-parser/wiki/pronunciations for details.  
-
-	my $pronunciations = $document->get_pronunciations();
 
 
 =item B<get_synonyms>
@@ -100,13 +104,11 @@ Returns a hashref mapping language and word sense to a list of hyponyms
 
      my $hyponyms = $document->get_hyponyms();
 
-
 =item B<get_hypernyms>
 
 Returns a hashref mapping language and word sense to a list of hypernyms
 
      my $hypernyms = $document->get_hypernyms();
-
 
 =item B<get_antonyms>
 
@@ -115,30 +117,17 @@ Returns a hashref mapping language and word sense to a list of antonyms
      my $antonyms = $document->get_antonyms();
 
 
-=item B<get_derived_terms>
-
-Returns a hashref mapping language to a list word derived terms / phrases
-
-     my $derived_words = $document->get_derived_words();
-
-
-=item B<get_sections>
-
-Returns a hashref of Wiktionary::Parser::Section objects.  These provide access to the data for each section of the document.
-The format of the hash is { $section_number => object }  e.g. {'1.2.1' => $obj}
-
-
-=item B<get_table_of_contents>
-
-Returns an arrayref containing section numbers and names.  Mostly helpful for informational / debugging purposes when you need a summary of what's in your document object.
-
-
 
 =item B<get_section(number => SECTION_NUMBER)>
 
 Given the section number, returns the corresponding Wiktionary::Parser::Section object.  Numbers correspond to the those in the table of contents shown on a mediawiki page.  
 
      my $section = $document->get_section(number => '1.2');
+
+=item B<get_sections>
+
+Returns a hashref of Wiktionary::Parser::Section objects.  These provide access to the data for each section of the document.
+The format of the hash is { $section_number => object }  e.g. {'1.2.1' => $obj}
 
 =item B<get_sections> (title => STRING_OR_REGEX)
 
@@ -163,9 +152,102 @@ Given a string or regular expression, this will return a Wiktionary::Parser::Doc
      print Dumper $sub_document->get_table_of_contents();
 
 
+
+
+=item B<get_part_of_speech_sections>
+
+Returns an array of Wiktionary::Parser::Section objects representating all the sections on the page that cover a part of speech. This current includes all sections that match the following header:
+
+
+	Part of Speech sections
+	noun
+	verb
+	adjective
+	adverb
+	pronoun
+	preposition
+	article
+	conjunction
+	determiner
+	interjection
+	symbol
+
+     my $sections = $document->get_part_of_speech_section();
+
+
+=item B<get_translation_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Translation sections in the document.
+
+     my $sections = $document->get_translation_sections();
+
+
+=item B<get_synonym_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Synonym sections in the document.
+
+     my $sections = $document->get_synonym_sections();
+
+
+=item B<get_hyponym_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Hyponym sections in the document.
+
+     my $sections = $document->get_hyponym_sections();
+
+
+=item B<get_hypernym_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Hypernym sections in the document.
+
+     my $sections = $document->get_hypernym_sections();
+
+
+=item B<get_antonym_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Antonym sections in the document.
+
+     my $sections = $document->get_antonym_sections();
+
+=item B<get_pronunciation_sections>
+
+Returns an array of Wiktionary::Parser::Section objects consisting of all Pronunciation sections in the document.
+
+     my $sections = $document->get_pronunciation_sections();
+
+
+
+
+=item B<get_table_of_contents>
+
+Returns an arrayref containing section numbers and names.  Mostly helpful for informational / debugging purposes when you need a summary of what's in your document object.
+
+     my $table_of_contents = $document->get_table_of_contents();
+
+
+	print Dumper $table_of_contents;
+
+     $VAR1 = [
+          '1,english',
+          '1.1,etymology',
+          '1.2,pronunciation',
+          '1.2.1,usage notes',
+          '1.3,noun',
+          '1.3.1,derived terms',
+          '1.3.2,translations',
+          '1.4,adjective',
+          '1.4.1,translations',
+          ...
+      ]
+
 =item B<get_title>
 
 Return the document title (i.e. the word you used to retrieve the document from the parser)
+
+=item B<get_categories>
+
+Return an array of all categories this page falls under.  (These are usually the links that appear at the bottom of a wiki page)
+
 
 =back
 

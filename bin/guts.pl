@@ -16,7 +16,7 @@ my $parser = Wiktionary::Parser->new();
 my $document = $parser->get_document(title => $word);
 
 # get an array of all section objects that match the title "etymology"
-my $sections_list = $document->get_sections(title => 'etymology');
+my $section_list = $document->get_sections(title => 'etymology');
 
 
 for my $section (@$section_list) {
