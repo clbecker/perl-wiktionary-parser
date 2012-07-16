@@ -156,8 +156,6 @@ sub get_mediawiki_client {
 
 1;
 
-=pod 
-
 =head1 Name
 
 Wiktionary::Parser - Client and Parser of content from the Wiktionary API
@@ -165,6 +163,8 @@ Wiktionary::Parser - Client and Parser of content from the Wiktionary API
 =head1 Synopsis
 
 This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.php) for documents by title.  It parses the resulting MediaWiki document and provides access to data structures containing word senses, translations, synonyms, parts of speech, etc.  It also provides access to the raw content of each MediaWiki section should you wish to extract other data on your own, or build on top of this package.  
+
+The repository for this package is available on github at https://github.com/clbecker/perl-wiktionary-parser
 
 =head1 Usage
 
@@ -176,11 +176,11 @@ This package may be used to query the Wiktionary API (en.wiktionary.org/w/api.ph
 	my $word_sense_hashref      = $document->get_word_senses();
 	my $parts_of_speech_hashref = $document->get_parts_of_speech();
 	my $pronunciations_hashref  = $document->get_pronunciations();
-     my $synonyms_hashref        = $document->get_synonyms();
-     my $hyponyms_hashref        = $document->get_hyponyms();
-     my $hypernyms_hashref       = $document->get_hypernyms();
-     my $antonyms_hashref        = $document->get_antonyms();
-     my $derived_terms_hashref   = $document->get_derived_terms();
+	my $synonyms_hashref        = $document->get_synonyms();
+	my $hyponyms_hashref        = $document->get_hyponyms();
+	my $hypernyms_hashref       = $document->get_hypernyms();
+	my $antonyms_hashref        = $document->get_antonyms();
+	my $derived_terms_hashref   = $document->get_derived_terms();
 
 	my $section_hashref = $document->get_sections();
 	my $sub_document = $document->get_sub_document(title => 'string or regex');
@@ -298,7 +298,7 @@ Given the section number, returns the corresponding Wiktionary::Parser::Section 
 
      my $section = $document->get_section(number => '1.2');
 
-=item B<get_sections(title => STRING_OR_REGEX)>
+=item B<get_sections> (title => STRING_OR_REGEX)
 
 Given a string or regular expression, this will return an array of Section objects containing any sections that match the given title pattern.  
 
@@ -309,7 +309,7 @@ Given a string or regular expression, this will return an array of Section objec
      my $sections = $document->get_sections(title => 'etymology|pronunciation|synonyms');
 
 
-=item B<get_sub_document(title => STRING_OR_REGEX)>
+=item B<get_sub_document> (title => STRING_OR_REGEX)
 
 Given a string or regular expression, this will return a Wiktionary::Parser::Document object consisting of just the matching sections, and their child sections.  This can be used if you're just interested in certain parts of a document.
 
@@ -369,3 +369,5 @@ Returns an array of all sections below this one in the hierarchy
 =back
 
 =cut
+ 
+
