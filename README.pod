@@ -159,18 +159,19 @@ Given a string or regular expression, this will return a Wiktionary::Parser::Doc
 Returns an array of Wiktionary::Parser::Section objects representating all the sections on the page that cover a part of speech. This current includes all sections that match the following header:
 
 
-	Part of Speech sections
-	noun
-	verb
-	adjective
-	adverb
-	pronoun
-	preposition
-	article
-	conjunction
-	determiner
-	interjection
-	symbol
+     Part of Speech sections
+     	noun
+     	verb
+     	adjective
+     	adverb
+     	pronoun
+     	preposition
+     	article
+     	conjunction
+     	determiner
+     	interjection
+     	symbol
+
 
      my $sections = $document->get_part_of_speech_section();
 
@@ -225,7 +226,7 @@ Returns an arrayref containing section numbers and names.  Mostly helpful for in
      my $table_of_contents = $document->get_table_of_contents();
 
 
-	print Dumper $table_of_contents;
+     print Dumper $table_of_contents;
 
      $VAR1 = [
           '1,english',
@@ -242,7 +243,7 @@ Returns an arrayref containing section numbers and names.  Mostly helpful for in
 
 =item B<get_title>
 
-Return the document title (i.e. the word you used to retrieve the document from the parser)
+Return the document title.  ( i.e. the argument you used in $parser->get_document(title => $title) )
 
 =item B<get_categories>
 
@@ -273,18 +274,19 @@ Return the Wiktionary::Parser::Section instane of the parent section.  e.g. if y
 
 =item B<get_language>
 
-For whatever section you are currently on,  this returns the language of the top level section this is under.  e.g. if the section instance you have represents the "Synonyms" section of the document under the French section, then this will return French as the language.  
+Returns the language thet this section falls under.  
 
+=item B<get_part_of_speech>
+
+Returns the part of speech that this section falls under.
 
 =item B<get_ancestor_sections>
 
 Return an arrayref containing all sections above this one in the hierarchy.  
 
-
 =item B<get_child_document>
 
 This returns a Wiktionary::Parser::Document object containing the current section and all its child sections.  
-
 
 =item B<get_child_sections>
 
