@@ -274,7 +274,7 @@ Return the Wiktionary::Parser::Section instane of the parent section.  e.g. if y
 
 =item B<get_language>
 
-Returns the language thet this section falls under.  
+Returns the language that this section falls under.  
 
 =item B<get_part_of_speech>
 
