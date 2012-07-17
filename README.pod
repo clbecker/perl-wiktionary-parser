@@ -370,7 +370,7 @@ Returns the number of this section (e.g. 1.2.1)
 
 =item B<get_parent_section>
 
-Return the Wiktionary::Parser::Section instane of the parent section.  e.g. if you call this on section 1.2.1, it'll return the object for section 1.2
+Return the Wiktionary::Parser::Section instance of the parent section.  e.g. if you call this on section 1.2.1, it'll return the object for section 1.2
 
 =item B<get_language>
 
