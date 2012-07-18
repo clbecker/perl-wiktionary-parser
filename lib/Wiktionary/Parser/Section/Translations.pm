@@ -125,6 +125,7 @@ sub template_trans_see {
 
 	# {{trans-see|that}}
 	if ($params[0] && scalar @params == 1) {
+		$self->clean_tokens(@params);
 		return {
 			word_sense => "wiktionary:$params[0]",
 			meta       => 'wiktionary_link',
