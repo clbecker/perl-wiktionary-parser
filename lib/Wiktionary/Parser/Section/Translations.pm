@@ -121,10 +121,11 @@ sub template_trans_see {
 	my $self = shift;
 	my ($title) = shift;
 	
-	my @params = split(/\|/,$title);
+	my @params = split(/\|/,$title,2);
 
 	# {{trans-see|that}}
 	if ($params[0] && scalar @params == 1) {
+		$self->clean_tokens(@params);
 		return {
 			word_sense => "wiktionary:$params[0]",
 			meta       => 'wiktionary_link',
@@ -133,7 +134,7 @@ sub template_trans_see {
 
 	# {{trans-see|rally|[[rally#Etymology 2|rally]]}}
 	if (my $link_meta = $params[1] =~ m/\[\[([^\]]+)\]\]/) {
-		my @link_params = split(/\|/, $link_meta);
+		my @link_params = split(/\|/, $1);
 		my $link;
 		# grab the last value if there's more than one entry
 		if (scalar @link_params > 1) {

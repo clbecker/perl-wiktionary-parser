@@ -513,8 +513,12 @@ sub get_translations {
 					my $linked_document = $self->get_parser()->get_document(title => $title);
 					# set _meta_follow_links to 0, to ensure we don't end up in 
 					# an endless loop if pages link back to each other
-					my $linked_translations = $linked_document->get_translations(_meta_follow_links => 0);
-					
+
+					my $linked_translations = {};
+					if ($linked_document) {
+						$linked_translations = $linked_document->get_translations(_meta_follow_links => 0);
+					}
+
 					for my $linked_word_sense (keys %$linked_translations) {
 						for my $linked_lang_code (keys %{ $linked_translations->{$linked_word_sense} || {} }) {
 							$translations{$linked_word_sense}{$linked_lang_code}{language} = $linked_translations->{$linked_word_sense}{$linked_lang_code}{language};
