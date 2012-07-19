@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-use Test::More;
+use Test::More tests => 19;
 use Wiktionary::Parser::Section::Translations;
 use Wiktionary::Parser::Document;
 

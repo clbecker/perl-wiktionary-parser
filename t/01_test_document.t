@@ -5,7 +5,7 @@ use warnings;
 use Data::Dumper;
 
 use Wiktionary::Parser;
-use Test::More;
+use Test::More tests => 2;
 
 my $parser = Wiktionary::Parser->new();
 
