@@ -36,3 +36,7 @@ Revision history for Wiktionary::Parser
 
 0.07    2012-07-15
         Updates to documentation and example scripts
+
+0.08    2012-07-18
+        Various bugfixes for data sanitizing
+        Fixed issue with unit tests
