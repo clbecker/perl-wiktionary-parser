@@ -8,7 +8,7 @@ use MediaWiki::API;
 use Wiktionary::Parser::Document;
 use Carp::Always;
 
-our $VERSION = 0.08;
+our $VERSION = 0.09;
 
 my $CACHE;
 
