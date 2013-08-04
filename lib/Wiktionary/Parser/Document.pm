@@ -483,14 +483,11 @@ sub get_parts_of_speech {
 sub get_translations {
 	my $self = shift;
 	my %args = @_;
+	my $include_transliterations = defined($args{include_transliterations}) ? $args{include_transliterations} : 1;
+	my $include_alternate_translations = defined($args{include_alternate_translations}) ? $args{include_alternate_translations} : 1;
 
 	# follow links to other wiktionary pages
 	my $_meta_follow_links = defined($args{_meta_follow_links}) ? $args{_meta_follow_links} : 1;
-
-
-	if ($self->{__get_translations__}) {
-		return $self->{__get_translations__};
-	}
 
 	my $sections = $self->get_translation_sections();
 	my @word_senses;
@@ -553,10 +550,10 @@ sub get_translations {
 					my $part_of_speech = $section->get_part_of_speech();
 					
 
-					if ($lexeme->get_transliteration()) {
+					if ($include_transliterations && $lexeme->get_transliteration()) {
 						push @translations, $lexeme->get_transliteration();
 					}
-					if ($lexeme->get_alternate()) {
+					if ($include_alternate_translations && $lexeme->get_alternate()) {
 						push @translations, $lexeme->get_alternate();
 					}
 
@@ -574,8 +571,6 @@ sub get_translations {
 			}
 		}
 	}
-
-	$self->{__get_translations__} = \%translations;
 
 	return \%translations;
 }
