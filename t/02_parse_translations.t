@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Wiktionary::Parser::Section::Translations;
 use Wiktionary::Parser::Document;
 
@@ -40,6 +40,12 @@ my @lines = (
 	{
 	 input => '*: Mandarin: {{t-|cmn|橙|tr=chéng|sc=Hani}}, {{t|cmn|橙子|tr=chéngzi|sc=Hani}}, {{qualifier|technically "tangerine", but often used as "orange"}} {{t-|cmn|橘子|tr=júzi|sc=Hani}}, {{qualifier|alternative form:}} {{t|cmn|桔子|tr=júzi|sc=Hani}}',
 	 output => \&result_cmn,
+	},
+
+	{
+	 input => '*: Mandarin: {{t-|cmn|橙|tr=chéng|sc=Hani}}, {{t|cmn|橙子|tr=chéngzi|sc=Hani}}, {{qualifier|technically "tangerine", but often used as "orange"}} {{t-|cmn|橘子|tr=júzi|sc=Hani}}, {{qualifier|alternative form:}} {{t|cmn|桔子|tr=júzi|sc=Hani}}',
+	 output => \&result_cmn_no_transliteration,
+	 options => {'include_transliterations' => 0},
 	},
 	{
 	 input => '* Kurdish: {{t+|ku|pirteqal}}, {{ku-Arab|[[پرته‌قاڵ]]}',
@@ -112,8 +118,10 @@ for my $hr (@lines) {
 		sections => [$section,$pos_section],
 	);
 
+	my $options = $hr->{options} || {};
+
 	unless(is_deeply(
-		$document->get_translations(),
+		$document->get_translations(%$options),
 		$hr->{output}->(),
 		"parsed $hr->{input}",
 	)) {
@@ -201,6 +209,21 @@ sub result_cmn {
         }
     };
 }
+
+sub result_cmn_no_transliteration {
+    return {
+        'test-word-sense' => {
+            'cmn' => {
+                'part_of_speech' => 'noun',
+                'language'     => 'Mandarin Chinese',
+                'translations' => [
+                     '桔子','橘子', '橙', '橙子',
+                ]
+            }
+        }
+    };
+}
+
 
 sub result_ku {
     return {

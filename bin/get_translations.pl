@@ -11,11 +11,18 @@ use Data::Dumper;
 use Wiktionary::Parser;
 use Encode qw(encode);
 
-my $word = 'orange';
+my $word = 'chair';
 my $parser = Wiktionary::Parser->new();
 my $document = $parser->get_document(title => $word);
 
-my $translations = $document->get_translations();
+my $translations = $document->get_translations(
+
+# uncomment this option to exclude transliterations from the results
+#	include_transliterations => 0,
+
+# uncomment this option to exclude alternate translations from the results
+#	include_alternate_translations => 0,
+);
 
 for my $word_sense (sort keys %{ $translations || {} }) {
 
