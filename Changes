@@ -1,8 +1,8 @@
 Revision history for perl module Wiktionary::Parser
 
 0.09 2013-08-04
-    - unknown changes
-
+    - added include_transliterations and include_alternate_translations as optional flags in get_translations()
+    
 0.08 2012-07-18
     - Various bugfixes for data sanitizing
     - Fixed issue with unit tests
