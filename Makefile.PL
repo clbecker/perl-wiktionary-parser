@@ -15,6 +15,8 @@ WriteMakefile(
 	PREREQ_PM => {
 		'MediaWiki::API' => 0,
 		'Locale::Codes' => 0,
+		'Locale::Codes::Language' => 0,
+		'Locale::Codes::Constants' => 0, # attempting to fix error in cpan testers report
 		'Text::Unidecode' => 0,
 		'Carp::Always' => 0,
 		'File::Path' => 0,

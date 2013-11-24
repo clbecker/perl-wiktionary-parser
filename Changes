@@ -1,5 +1,14 @@
 Revision history for perl module Wiktionary::Parser
 
+0.11 2013-11-24
+    - Attempted to fix some errors listed in CPAN Testers report - perl 5.14 on various BSD's
+      gets the error: "Can't locate Locale/Codes/Constants.pm in @INC"
+
+0.10 2013-11-23
+    - use Local::Language::Constants in Wiktionary::Parser::Language
+    - added cpanfile
+    - added .rock.yml to run via rock runtimes (www.rockstack.org)
+
 0.09 2013-08-04
     - added include_transliterations and include_alternate_translations as optional flags in get_translations()
     
