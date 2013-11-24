@@ -18,6 +18,7 @@ WriteMakefile(
 		'Text::Unidecode' => 0,
 		'Carp::Always' => 0,
 		'File::Path' => 0,
+		'Test::More' => 0,
 	},
 	META_MERGE => {
 		resources => {
