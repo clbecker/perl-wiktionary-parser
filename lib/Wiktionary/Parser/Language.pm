@@ -7,7 +7,9 @@ use warnings;
 use Data::Dumper;
 
 use Locale::Codes::Language qw();
+use Locale::Codes::Constants;
 use Text::Unidecode qw();
+
 
 my $NAME_MAP;
 
@@ -46,7 +48,7 @@ sub _build_name_map {
  	);
 
 	my @all_names =  Locale::Codes::Language::all_language_names();
-	my @all_names_3 = Locale::Codes::Language::all_language_names(Locale::Codes::Language::LOCALE_LANG_ALPHA_3);
+	my @all_names_3 = Locale::Codes::Language::all_language_names(Locale::Codes::Constants::LOCALE_LANG_ALPHA_3);
 
 	for my $name (@all_names,@all_names_3) {
 		next unless $name =~ m/\(/;
@@ -85,14 +87,14 @@ sub language2code {
 
 	my $code = Locale::Codes::Language::language2code(
 		$language_name,
-		Locale::Codes::Language::LOCALE_LANG_ALPHA_2,
+		Locale::Codes::Constants::LOCALE_LANG_ALPHA_2,
 	);
 
 	return $code if $code;
 
 	$code = Locale::Codes::Language::language2code(
 		$NAME_MAP->{$language_name},
-		Locale::Codes::Language::LOCALE_LANG_ALPHA_2,
+		Locale::Codes::Constants::LOCALE_LANG_ALPHA_2,
 	);
 
 
@@ -101,14 +103,14 @@ sub language2code {
 
 	$code = Locale::Codes::Language::language2code(
 		$language_name,
-		Locale::Codes::Language::LOCALE_LANG_ALPHA_3,
+		Locale::Codes::Constants::LOCALE_LANG_ALPHA_3,
 	);
 
 	return $code if $code;
 
 	$code = Locale::Codes::Language::language2code(
 		$NAME_MAP->{$language_name},
-		Locale::Codes::Language::LOCALE_LANG_ALPHA_3,
+		Locale::Codes::Constants::LOCALE_LANG_ALPHA_3,
 	);
 
 	return $code if $code;
@@ -130,12 +132,12 @@ sub code2language {
 	if (length($code) == 2) {
 		$name = Locale::Codes::Language::code2language(
 			$code,
-			Locale::Codes::Language::LOCALE_LANG_ALPHA_2,
+			Locale::Codes::Constants::LOCALE_LANG_ALPHA_2,
 		);
 	} elsif (length($code) == 3) {
 		$name = Locale::Codes::Language::code2language(
 			$code,
-			Locale::Codes::Language::LOCALE_LANG_ALPHA_3,
+			Locale::Codes::Constants::LOCALE_LANG_ALPHA_3,
 		);
 	}
 	
