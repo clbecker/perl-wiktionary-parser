@@ -111,6 +111,7 @@ sub add_pronunciation {
 		representation => $args{representation},
 		pronunciation  => $args{pronunciation},
 		context => $args{context},
+		senses => $args{senses},
 	);
 	push @{$self->{pronunciation}{$lang}},$pronunciation;
 }
