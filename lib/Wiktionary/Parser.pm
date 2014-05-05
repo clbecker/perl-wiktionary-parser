@@ -187,7 +187,7 @@ And on CPAN at: http://search.cpan.org/~clbecker/Wiktionary-Parser/
 	my $sub_document = $document->get_sub_document(title => 'string or regex');
 	my $table_of_contents_arrayref = $document->get_table_of_contents();
 
-
+        my $english_section = $document->get_language_section(language => 'English');
 
 =head2 Methods for Wiktionary::Parser
 
@@ -392,6 +392,14 @@ If you want to get only the "English" section, use this pattern:
 
 This returns an array of all etymology, pronunciation, and synonym sections
      my $sections = $document->get_sections(title => 'etymology|pronunciation|synonyms');
+
+=item B<get_language_section> (language => LANGUAGE_STRING)
+
+Extract the document that corresponds only to that language, which must be described by a capitalized word such as English or Spanish. For instance
+
+    my $section = $document->get_language_section(language => 'Spanish' );
+
+returns a hash with the sections that have Spanish as a language.
 
 
 =item B<get_sub_document> (title => STRING_OR_REGEX)
