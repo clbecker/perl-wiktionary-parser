@@ -242,7 +242,7 @@ sub result_gd {
         'test-word-sense' => {
             'gd' => {
                 'part_of_speech' => 'noun',
-                'language'     => 'Gaelic',
+                'language'     => 'Scottish Gaelic',
                 'translations' => [ 'oraindsear', 'òr-mheas' ]
             }
         }
